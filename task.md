@@ -83,15 +83,15 @@ Documento consolidado e atualizado automaticamente a cada operação de criaçã
 ## 4. Backlog da Sprint (Plano de Execução)
 
 ### Epic 1: Infraestrutura e Configuração Base (Spring Boot + MongoDB)
-- [ ] **Task 1.1:** Estruturar o projeto Gradle no diretório `retention-dashboard` aderente ao padrão arquitetural do `todolist_example`.
-- [ ] **Task 1.2:** Configurar a conexão com o **MongoDB** no `application.properties`, garantindo ambiente limpo sem scripts de seed.
-- [ ] **Task 1.3:** Implementar `GlobalExceptionHandler` (`@ControllerAdvice`) para padronização de respostas de erro e validação de payloads.
+- [x] **Task 1.1:** Estruturar o projeto Gradle no diretório raiz (`retention-dashboard`) aderente ao padrão arquitetural do `todolist_example`.
+- [x] **Task 1.2:** Configurar a conexão com o **MongoDB** no `application.properties`, garantindo ambiente limpo sem scripts de seed.
+- [x] **Task 1.3:** Implementar `GlobalExceptionHandler` (`@RestControllerAdvice`) para padronização de respostas de erro e validação de payloads.
 
 ### Epic 2: Camada de Domínio, Persistência e Contratos (Models, DTOs, Mappers, Repositories)
-- [ ] **Task 2.1:** Mapear as entidades `@Document` (`Aluno`, `DisciplinaDesempenho` e `AnalisePreditiva`) no pacote `model/`.
-- [ ] **Task 2.2:** Definir os objetos de transferência (`AlunoDTO`, `DisciplinaDesempenhoDTO` e `DashboardPerformanceDTO`) com regras de Bean Validation no pacote `dto/`.
-- [ ] **Task 2.3:** Implementar os conversores (`AlunoMapper`, `DisciplinaMapper` e `AnaliseMapper`) no pacote `mapper/` utilizando métodos estáticos (`toDTO` / `toEntity`).
-- [ ] **Task 2.4:** Criar as interfaces `AlunoRepository`, `DisciplinaDesempenhoRepository` e `AnalisePreditivaRepository` estendendo `MongoRepository`.
+- [x] **Task 2.1:** Mapear as entidades `@Document` (`Aluno`, `DisciplinaDesempenho` e `AnalisePreditiva`) e enums (`StatusSituacao`, `ClassificacaoRisco`) no pacote `model/`.
+- [x] **Task 2.2:** Definir os objetos de transferência (`AlunoDTO`, `DisciplinaDesempenhoDTO`, `AnalisePreditivaDTO` e `DashboardPerformanceDTO`) com regras de Bean Validation no pacote `dto/`.
+- [x] **Task 2.3:** Implementar os conversores (`AlunoMapper`, `DisciplinaMapper` e `AnaliseMapper`) no pacote `mapper/` utilizando métodos estáticos (`toDTO` / `toEntity`).
+- [x] **Task 2.4:** Criar as interfaces `AlunoRepository`, `DisciplinaDesempenhoRepository` e `AnalisePreditivaRepository` estendendo `MongoRepository`.
 
 ### Epic 3: Camada de Serviço e Motor de Cálculo Preditivo (`service/`)
 - [ ] **Task 3.1:** Implementar `AlunoService` para gerenciamento do ciclo de vida do perfil discente.
@@ -120,7 +120,7 @@ Documento consolidado e atualizado automaticamente a cada operação de criaçã
 - [ ] **Task 5.4:** Padronizar contratos HTTP e cabeçalhos de resposta (`ResponseEntity`, códigos de status semânticos, versionamento de rotas e documentação de payloads).
 
 ### Epic 6: Validações de Segurança, Integridade de Domínio e Tratamento de Exceções (`security/`, `validation/`, `exception/`)
-- [ ] **Task 6.1:** Implementar validações de entrada (Bean Validation) nos DTOs de requisição:
+- [x] **Task 6.1:** Implementar validações de entrada (Bean Validation) nos DTOs de requisição:
   - Restrições de intervalo numérico para `nota1` e `nota2` (`@DecimalMin("0.0")`, `@DecimalMax("10.0")`).
   - Restrições para `mediaMinimaAprovacao` (`0.0` a `10.0`) e `frequenciaMinimaExigida` (`0.0` a `100.0`).
   - Validação de obrigatoriedade e tamanho máximo de campos textuais (`@NotBlank`, `@Size`) para mitigar payloads excessivos.
