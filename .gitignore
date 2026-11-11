@@ -1,0 +1,106 @@
+# ===================================================================
+# 1. JAVA, GRADLE & SPRING BOOT
+# ===================================================================
+.gradle/
+build/
+bin/
+out/
+target/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Logs e Dumps da JVM
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+*.hprof
+HELP.md
+
+# ===================================================================
+# 2. IDEs (IntelliJ IDEA, Eclipse/STS, VS Code, NetBeans)
+# ===================================================================
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse / Spring Tool Suite (STS)
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# ===================================================================
+# 3. PYTHON / SERVICO DE IA PREDITIVA
+# ===================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===================================================================
+# 4. FRONTEND (Node, React, Vite, Assets Temporarios)
+# ===================================================================
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.parcel-cache/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.local
+
+# ===================================================================
+# 5. VARIAVEIS DE AMBIENTE, CREDENCIAIS E UPLOADS TEMPORARIOS (CSV)
+# ===================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+uploads/
+temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# ===================================================================
+# 6. SISTEMA OPERACIONAL (Windows, macOS, Linux)
+# ===================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
