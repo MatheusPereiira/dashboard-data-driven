@@ -94,15 +94,15 @@ Documento consolidado e atualizado automaticamente a cada operação de criaçã
 - [x] **Task 2.4:** Criar as interfaces `AlunoRepository`, `DisciplinaDesempenhoRepository` e `AnalisePreditivaRepository` estendendo `MongoRepository`.
 
 ### Epic 3: Camada de Serviço e Motor de Cálculo Preditivo (`service/`)
-- [ ] **Task 3.1:** Implementar `AlunoService` para gerenciamento do ciclo de vida do perfil discente.
-- [ ] **Task 3.2:** Implementar `DesempenhoService` contemplando:
+- [x] **Task 3.1:** Implementar `AlunoService` para gerenciamento do ciclo de vida do perfil discente.
+- [x] **Task 3.2:** Implementar `DesempenhoService` contemplando:
   - Recebimento e validação dos dados de notas, faltas e carga horária.
   - Cálculo automático de percentual de frequência, média parcial/final, nota necessária para aprovação e saldo de faltas permitido.
   - Orquestração automática da atualização de `AnalisePreditiva` a cada operação de escrita ou exclusão.
-- [ ] **Task 3.3:** Integrar o serviço de cálculo preditivo em **Python** ao fluxo de consolidação de risco.
+- [x] **Task 3.3:** Integrar o serviço de cálculo preditivo em **Python** ao fluxo de consolidação de risco.
 
 ### Epic 4: Processamento em Lote via Spring Batch (`batch/`)
-- [ ] **Task 4.1:** Implementar Job do **Spring Batch** para leitura, validação e persistência no MongoDB de arquivos CSV contendo o boletim ou histórico escolar enviado pelo estudante.
+- [x] **Task 4.1:** Implementar Job do **Spring Batch** para leitura, validação e persistência no MongoDB de arquivos CSV contendo o boletim ou histórico escolar enviado pelo estudante.
 
 ### Epic 5: Camada de Apresentação REST (`controller/`)
 - [ ] **Task 5.1:** Implementar `AlunoController` (`/api/v1/alunos`):
