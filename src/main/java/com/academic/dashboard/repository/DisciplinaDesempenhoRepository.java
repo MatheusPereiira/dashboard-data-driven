@@ -16,6 +16,18 @@ public interface DisciplinaDesempenhoRepository extends MongoRepository<Discipli
 
     List<DisciplinaDesempenho> findByAlunoIdAndStatusSituacao(String alunoId, StatusSituacao statusSituacao);
 
+    List<DisciplinaDesempenho> findByAlunoIdAndSemestreLetivoAndStatusSituacao(
+            String alunoId,
+            String semestreLetivo,
+            StatusSituacao statusSituacao
+    );
+
+    List<DisciplinaDesempenho> findByAlunoIdAndNomeDisciplinaIgnoreCaseAndSemestreLetivo(
+            String alunoId,
+            String nomeDisciplina,
+            String semestreLetivo
+    );
+
     boolean existsByAlunoIdAndNomeDisciplinaIgnoreCaseAndSemestreLetivo(
             String alunoId,
             String nomeDisciplina,

@@ -1,2 +1,6 @@
-rootProject.name = 'retention-dashboard'
+plugins {
+    // Permite ao Gradle baixar automaticamente o JDK exigido pelo toolchain (Java 25)
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 
+rootProject.name = 'retention-dashboard'
