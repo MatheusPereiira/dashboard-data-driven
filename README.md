@@ -134,7 +134,7 @@ Documento consolidado e atualizado automaticamente a cada modificação de notas
 - `POST /api/v1/disciplinas` — Registra disciplina, calcula indicadores e atualiza a análise preditiva (`201 Created`).
 - `PUT /api/v1/disciplinas/{id}` — Atualiza notas ou faltas e reprocessa o dashboard em tempo real (`200 OK`).
 - `GET /api/v1/disciplinas/aluno/{alunoId}` — Lista as disciplinas do estudante com suporte a filtros por `semestreLetivo` e `statusSituacao` (`200 OK`).
-- `DELETE /api/v1/disciplinas/{id}` — Remove disciplina e recalcula os indicadores globais (`204 No Content`).
+- `DELETE /api/v1/disciplinas/{id}` — Remove disciplina e retorna o dashboard com os indicadores globais recalculados (`200 OK`).
 
 ### Importação em Lote via Spring Batch (`BatchImportController`)
 - `POST /api/v1/importacoes/boletim/{alunoId}` — Recebe arquivo CSV (`multipart/form-data`), executa o Job do **Spring Batch** e retorna o resumo de processamento junto ao dashboard atualizado (`200 OK`).
