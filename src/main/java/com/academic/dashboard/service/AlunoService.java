@@ -61,6 +61,13 @@ public class AlunoService {
         return AlunoMapper.toDTO(obterEntidade(id));
     }
 
+    public List<AlunoDTO> listarTodos() {
+        return alunoRepository.findAll()
+                .stream()
+                .map(AlunoMapper::toDTO)
+                .toList();
+    }
+
     /**
      * Atualiza o perfil. Alteracoes na media minima ou na frequencia minima exigida disparam o recalculo
      * de todas as disciplinas e da analise preditiva do aluno.
