@@ -100,9 +100,11 @@ public class BatchImportService {
                     dashboard
             );
 
+        } catch (BusinessValidationException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Falha ao executar job de importacao para aluno {}", alunoId, e);
-            throw new BusinessValidationException("Falha ao processar arquivo CSV do boletim: " + e.getMessage());
+            throw new BusinessValidationException("Falha ao processar o arquivo CSV do boletim. Verifique o formato e tente novamente.");
         } finally {
             if (tempFile != null) {
                 try {
