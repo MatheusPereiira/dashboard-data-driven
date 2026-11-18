@@ -105,35 +105,35 @@ Documento consolidado e atualizado automaticamente a cada operação de criaçã
 - [x] **Task 4.1:** Implementar Job do **Spring Batch** para leitura, validação e persistência no MongoDB de arquivos CSV contendo o boletim ou histórico escolar enviado pelo estudante.
 
 ### Epic 5: Camada de Apresentação REST (`controller/`)
-- [ ] **Task 5.1:** Implementar `AlunoController` (`/api/v1/alunos`):
+- [x] **Task 5.1:** Implementar `AlunoController` (`/api/v1/alunos`):
   - `POST /api/v1/alunos`: Cadastro de perfil discente e parâmetros institucionais (`201 Created`).
   - `GET /api/v1/alunos/{id}`: Consulta de dados cadastrais e parâmetros do estudante (`200 OK`).
   - `PUT /api/v1/alunos/{id}`: Atualização de curso, semestre, média mínima ou frequência exigida (`200 OK`).
   - `GET /api/v1/alunos/{id}/dashboard`: Recuperação consolidada do `DashboardPerformanceDTO` contendo perfil, lista de disciplinas, indicadores globais e `AnalisePreditiva` (`200 OK`).
-- [ ] **Task 5.2:** Implementar `DesempenhoController` (`/api/v1/disciplinas`):
+- [x] **Task 5.2:** Implementar `DesempenhoController` (`/api/v1/disciplinas`):
   - `POST /api/v1/disciplinas`: Registro de nova disciplina com notas, faltas e carga horária, acionando recálculo preditivo e retornando o dashboard atualizado (`201 Created`).
   - `PUT /api/v1/disciplinas/{id}`: Atualização parcial ou integral de notas e faltas com recálculo síncrono de indicadores (`200 OK`).
   - `GET /api/v1/disciplinas/aluno/{alunoId}`: Listagem de disciplinas vinculadas ao estudante com suporte a filtro por `semestreLetivo` e `statusSituacao` (`200 OK`).
   - `DELETE /api/v1/disciplinas/{id}`: Exclusão de registro de disciplina seguida de reprocessamento imediato da `AnalisePreditiva` (`204 No Content` ou retorno do estado consolidado).
-- [ ] **Task 5.3:** Implementar `BatchImportController` (`/api/v1/importacoes`):
+- [x] **Task 5.3:** Implementar `BatchImportController` (`/api/v1/importacoes`):
   - `POST /api/v1/importacoes/boletim/{alunoId}`: Endpoint `multipart/form-data` para recepção do arquivo CSV do estudante, disparo do Job do **Spring Batch** e retorno do relatório de processamento (registros importados, rejeitados e dashboard recalculado).
-- [ ] **Task 5.4:** Padronizar contratos HTTP e cabeçalhos de resposta (`ResponseEntity`, códigos de status semânticos, versionamento de rotas e documentação de payloads).
+- [x] **Task 5.4:** Padronizar contratos HTTP e cabeçalhos de resposta (`ResponseEntity`, códigos de status semânticos, versionamento de rotas e documentação de payloads).
 
 ### Epic 6: Validações de Segurança, Integridade de Domínio e Tratamento de Exceções (`security/`, `validation/`, `exception/`)
 - [x] **Task 6.1:** Implementar validações de entrada (Bean Validation) nos DTOs de requisição:
   - Restrições de intervalo numérico para `nota1` e `nota2` (`@DecimalMin("0.0")`, `@DecimalMax("10.0")`).
   - Restrições para `mediaMinimaAprovacao` (`0.0` a `10.0`) e `frequenciaMinimaExigida` (`0.0` a `100.0`).
   - Validação de obrigatoriedade e tamanho máximo de campos textuais (`@NotBlank`, `@Size`) para mitigar payloads excessivos.
-- [ ] **Task 6.2:** Implementar validação de invariantes de negócio e consistência cruzada na camada de serviço/validador customizado:
+- [x] **Task 6.2:** Implementar validação de invariantes de negócio e consistência cruzada na camada de serviço/validador customizado:
   - Impedir que `quantidadeFaltas` seja negativa ou superior a `totalAulasSemestre`.
   - Impedir que `totalAulasSemestre` seja menor ou igual a zero.
   - Prevenir duplicidade de cadastro da mesma disciplina no mesmo `semestreLetivo` para o mesmo `alunoId`.
   - Validar formato de identificadores (`ObjectId`) antes de consultas ao MongoDB para evitar exceções de conversão não tratadas.
-- [ ] **Task 6.3:** Implementar blindagem e validação de segurança no upload de arquivos CSV (Spring Batch):
+- [x] **Task 6.3:** Implementar blindagem e validação de segurança no upload de arquivos CSV (Spring Batch):
   - Validação estrita de extensão (`.csv`), Content-Type (`text/csv`) e limite máximo de tamanho de arquivo (`max-file-size`).
   - Sanitização de células do CSV contra **CSV Injection / Formula Injection** (bloqueio ou escape de valores iniciados por `=`, `+`, `-`, `@`).
   - Rejeição controlada de linhas malformadas via `SkipPolicy` / `ExecutionListener` sem derrubar a aplicação.
-- [ ] **Task 6.4:** Configurar políticas de segurança da API REST:
+- [x] **Task 6.4:** Configurar políticas de segurança da API REST:
   - Configuração explícita de **CORS** (`WebMvcConfigurer`) restrita às origens autorizadas do Frontend.
   - Sanitização de strings de entrada para prevenção de **XSS** (Cross-Site Scripting) e **NoSQL Injection** em filtros de consulta do MongoDB.
   - Padronização de respostas de erro no `GlobalExceptionHandler` ocultando *stack traces* internas e detalhes sensíveis de infraestrutura em respostas `400 Bad Request`, `404 Not Found`, `422 Unprocessable Entity` e `500 Internal Server Error`.
