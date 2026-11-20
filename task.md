@@ -139,23 +139,23 @@ Documento consolidado e atualizado automaticamente a cada operação de criaçã
   - Padronização de respostas de erro no `GlobalExceptionHandler` ocultando *stack traces* internas e detalhes sensíveis de infraestrutura em respostas `400 Bad Request`, `404 Not Found`, `422 Unprocessable Entity` e `500 Internal Server Error`.
 
 ### Epic 7: Interface do Usuário e Visualização de Dados (`frontend/`)
-- [ ] **Task 7.1:** Estruturar arquitetura do Frontend e camada de integração HTTP:
+- [x] **Task 7.1:** Estruturar arquitetura do Frontend e camada de integração HTTP:
   - Configurar cliente HTTP centralizado (`fetch` ou `axios`) apontando para `/api/v1` com interceptadores de erro e tratamento padronizado de mensagens vindas do `GlobalExceptionHandler`.
   - Implementar gerenciamento de estado reativo do estudante ativo (`alunoId`, perfil institucional, lista de disciplinas e `AnalisePreditiva`).
-- [ ] **Task 7.2:** Desenvolver módulo de Onboarding e Parametrização do Estudante:
+- [x] **Task 7.2:** Desenvolver módulo de Onboarding e Parametrização do Estudante:
   - Formulário de cadastro/edição de perfil (Nome, Matrícula, Curso, Semestre Atual, Média Mínima de Aprovação e Frequência Mínima Exigida).
   - Persistência da sessão/identificação do aluno ativo e transição fluida do estado vazio (*Empty State*) para o painel operacional.
-- [ ] **Task 7.3:** Desenvolver módulo de Lançamento Rápido e Gestão de Disciplinas:
+- [x] **Task 7.3:** Desenvolver módulo de Lançamento Rápido e Gestão de Disciplinas:
   - Formulário com validação client-side espelhando as regras de negócio (bloqueio de notas fora de `0–10`, validação em tempo real de `Faltas <= Total de Aulas`).
   - Tabela/Listagem interativa de disciplinas cursadas com ações rápidas de edição inline de notas/faltas, exclusão com confirmação e badges visuais de `statusSituacao` (`APROVADO`, `REGULAR`, `ATENCAO_NOTA`, `ATENCAO_FALTA`, `RISCO_CRITICO`, `REPROVADO`).
-- [ ] **Task 7.4:** Desenvolver componente de Importação de Boletim via CSV:
+- [x] **Task 7.4:** Desenvolver componente de Importação de Boletim via CSV:
   - Área de *Drag-and-Drop* / seleção de arquivo `.csv` com validação prévia de extensão e tamanho no navegador.
   - Indicador de progresso de envio e exibição do resumo de importação retornado pelo endpoint do Spring Batch.
-- [ ] **Task 7.5:** Implementar Painel de KPIs e Visualizações Gráficas (Data-Driven):
+- [x] **Task 7.5:** Implementar Painel de KPIs e Visualizações Gráficas (Data-Driven):
   - **Cards de Indicadores Globais:** IRA (Média Geral), Frequência Global (%), Score de Risco Preditivo (`0%–100%` com codificação semântica de cor por `classificacaoRisco`) e Total de Disciplinas em Alerta.
   - **Gráfico Comparativo de Notas (Barras):** Notas atuais por disciplina sobrepostas à linha de referência da `mediaMinimaAprovacao`.
   - **Gráfico de Consumo de Limite de Faltas (Barras Horizontais / Progresso):** Percentual de faltas utilizadas vs. margem restante (`faltasRestantesPermitidas`) até o limite de reprovação por frequência.
   - **Gráfico de Correlação Nota × Frequência (Radar ou Dispersão):** Visão multidimensional de equilíbrio acadêmico do estudante.
-- [ ] **Task 7.6:** Implementar Painel de Diagnósticos e Metas Preditivas e refinamento de UX:
+- [x] **Task 7.6:** Implementar Painel de Diagnósticos e Metas Preditivas e refinamento de UX:
   - Renderização estruturada dos `alertasPreditivos` e simulador/indicador de `notaNecessariaParaPassar` por disciplina.
   - Estados visuais de carregamento (*Skeleton / Loading States*), notificações de feedback (*Toasts* de sucesso/erro) e layout responsivo para desktop e dispositivos móveis.
