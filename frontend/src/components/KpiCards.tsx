@@ -54,8 +54,10 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ dashboard }) => {
   };
 
   const riskConfig = getRiskConfig(classificacao);
-  const mediaCorte = aluno.mediaMinimaAprovacao ?? 6.0;
-  const freqMinima = aluno.frequenciaMinimaExigida ?? 75.0;
+  const mediaCorte = (aluno.mediaMinimaAprovacao ?? 60.0) <= 10.0
+    ? (aluno.mediaMinimaAprovacao ?? 6.0) * 10
+    : (aluno.mediaMinimaAprovacao ?? 60.0);
+  const freqMinima = aluno.frequenciaMinimaExigida ?? 80.0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -75,30 +77,30 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ dashboard }) => {
             <span className="text-3xl font-extrabold tracking-tight text-white">
               {ira.toFixed(1)}
             </span>
-            <span className="text-xs text-slate-400">/ 10.0</span>
+            <span className="text-xs text-slate-400">/ 100 pts</span>
           </div>
           <div className="flex items-center gap-1.5 mt-1 text-xs">
             {ira >= mediaCorte ? (
               <span className="text-emerald-400 flex items-center gap-1">
                 <TrendingUp className="w-3.5 h-3.5" />
-                Acima do corte ({mediaCorte.toFixed(1)})
+                Acima do corte ({mediaCorte.toFixed(0)} pts)
               </span>
             ) : (
               <span className="text-amber-400 flex items-center gap-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                Abaixo do corte ({mediaCorte.toFixed(1)})
+                Abaixo do corte ({mediaCorte.toFixed(0)} pts)
               </span>
             )}
           </div>
         </div>
 
-        {/* Mini progress bar against 10.0 */}
+        {/* Mini progress bar against 100.0 */}
         <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
               ira >= mediaCorte ? 'bg-indigo-500' : 'bg-amber-500'
             }`}
-            style={{ width: `${Math.min(100, Math.max(0, ira * 10))}%` }}
+            style={{ width: `${Math.min(100, Math.max(0, ira))}%` }}
           />
         </div>
       </div>

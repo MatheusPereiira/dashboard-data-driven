@@ -26,8 +26,11 @@ export interface DisciplinaDesempenhoDTO {
   totalAulasSemestre: number;
   quantidadeFaltas: number;
   percentualFrequencia?: number;
-  nota1: number;
-  nota2?: number | null;
+  notaEtapa1?: number | null;
+  notaEtapa2?: number | null;
+  notaEtapa3?: number | null;
+  nota1?: number; // compatibilidade legada
+  nota2?: number | null; // compatibilidade legada
   mediaAtual?: number;
   notaNecessariaParaPassar?: number;
   faltasRestantesPermitidas?: number;
