@@ -23,12 +23,17 @@ public class DisciplinaDesempenho {
 
     private Double percentualFrequencia;
 
-    private Double nota1;
+    // Etapas da faculdade (escala 100 pontos: Etapa 1 = 25 pts, Etapa 2 = 30 pts, Etapa 3 = 45 pts)
+    private Double notaEtapa1;
 
-    private Double nota2;
+    private Double notaEtapa2;
 
+    private Double notaEtapa3;
+
+    // Pontos totais acumulados das etapas registradas
     private Double mediaAtual;
 
+    // Pontos restantes necessários para atingir os 60 pontos
     private Double notaNecessariaParaPassar;
 
     private Integer faltasRestantesPermitidas;
@@ -40,8 +45,8 @@ public class DisciplinaDesempenho {
 
     public DisciplinaDesempenho(String id, String alunoId, String nomeDisciplina, String semestreLetivo,
                                 Integer totalAulasSemestre, Integer quantidadeFaltas, Double percentualFrequencia,
-                                Double nota1, Double nota2, Double mediaAtual, Double notaNecessariaParaPassar,
-                                Integer faltasRestantesPermitidas, StatusSituacao statusSituacao) {
+                                Double notaEtapa1, Double notaEtapa2, Double notaEtapa3, Double mediaAtual,
+                                Double notaNecessariaParaPassar, Integer faltasRestantesPermitidas, StatusSituacao statusSituacao) {
         this.id = id;
         this.alunoId = alunoId;
         this.nomeDisciplina = nomeDisciplina;
@@ -49,8 +54,9 @@ public class DisciplinaDesempenho {
         this.totalAulasSemestre = totalAulasSemestre;
         this.quantidadeFaltas = quantidadeFaltas;
         this.percentualFrequencia = percentualFrequencia;
-        this.nota1 = nota1;
-        this.nota2 = nota2;
+        this.notaEtapa1 = notaEtapa1;
+        this.notaEtapa2 = notaEtapa2;
+        this.notaEtapa3 = notaEtapa3;
         this.mediaAtual = mediaAtual;
         this.notaNecessariaParaPassar = notaNecessariaParaPassar;
         this.faltasRestantesPermitidas = faltasRestantesPermitidas;
@@ -113,20 +119,45 @@ public class DisciplinaDesempenho {
         this.percentualFrequencia = percentualFrequencia;
     }
 
+    public Double getNotaEtapa1() {
+        return notaEtapa1;
+    }
+
+    public void setNotaEtapa1(Double notaEtapa1) {
+        this.notaEtapa1 = notaEtapa1;
+    }
+
+    public Double getNotaEtapa2() {
+        return notaEtapa2;
+    }
+
+    public void setNotaEtapa2(Double notaEtapa2) {
+        this.notaEtapa2 = notaEtapa2;
+    }
+
+    public Double getNotaEtapa3() {
+        return notaEtapa3;
+    }
+
+    public void setNotaEtapa3(Double notaEtapa3) {
+        this.notaEtapa3 = notaEtapa3;
+    }
+
+    // Compatibilidade com código legado se necessário
     public Double getNota1() {
-        return nota1;
+        return notaEtapa1;
     }
 
     public void setNota1(Double nota1) {
-        this.nota1 = nota1;
+        this.notaEtapa1 = nota1;
     }
 
     public Double getNota2() {
-        return nota2;
+        return notaEtapa2;
     }
 
     public void setNota2(Double nota2) {
-        this.nota2 = nota2;
+        this.notaEtapa2 = nota2;
     }
 
     public Double getMediaAtual() {
@@ -161,4 +192,3 @@ public class DisciplinaDesempenho {
         this.statusSituacao = statusSituacao;
     }
 }
-

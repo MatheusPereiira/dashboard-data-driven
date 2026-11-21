@@ -73,8 +73,9 @@ public class DesempenhoService {
         existente.setSemestreLetivo(dadosNovos.getSemestreLetivo());
         existente.setTotalAulasSemestre(dadosNovos.getTotalAulasSemestre());
         existente.setQuantidadeFaltas(dadosNovos.getQuantidadeFaltas());
-        existente.setNota1(dadosNovos.getNota1());
-        existente.setNota2(dadosNovos.getNota2());
+        existente.setNotaEtapa1(dadosNovos.getNotaEtapa1());
+        existente.setNotaEtapa2(dadosNovos.getNotaEtapa2());
+        existente.setNotaEtapa3(dadosNovos.getNotaEtapa3());
 
         validarDados(existente);
         validarDuplicidade(existente, existente.getId());
@@ -149,18 +150,21 @@ public class DesempenhoService {
                     "A quantidade de faltas (%d) nao pode ser superior ao total de aulas do semestre (%d).",
                     faltas, totalAulas));
         }
-        if (disciplina.getNota1() == null) {
-            throw new BusinessValidationException("A Nota 1 e obrigatoria.");
+        if (disciplina.getNotaEtapa1() != null) {
+            validarNota(disciplina.getNotaEtapa1(), CalculadoraDesempenho.PONTOS_ETAPA_1, "Etapa 1");
         }
-        validarNota(disciplina.getNota1(), "Nota 1");
-        if (disciplina.getNota2() != null) {
-            validarNota(disciplina.getNota2(), "Nota 2");
+        if (disciplina.getNotaEtapa2() != null) {
+            validarNota(disciplina.getNotaEtapa2(), CalculadoraDesempenho.PONTOS_ETAPA_2, "Etapa 2");
+        }
+        if (disciplina.getNotaEtapa3() != null) {
+            validarNota(disciplina.getNotaEtapa3(), CalculadoraDesempenho.PONTOS_ETAPA_3, "Etapa 3");
         }
     }
 
-    private static void validarNota(double nota, String rotulo) {
-        if (Double.isNaN(nota) || nota < 0.0 || nota > CalculadoraDesempenho.NOTA_MAXIMA) {
-            throw new BusinessValidationException("A " + rotulo + " deve estar entre 0.0 e 10.0.");
+    private static void validarNota(double nota, double maximo, String rotulo) {
+        if (Double.isNaN(nota) || nota < 0.0 || nota > maximo) {
+            throw new BusinessValidationException(String.format(
+                    "A nota da %s deve estar entre 0.0 e %.1f pontos.", rotulo, maximo));
         }
     }
 

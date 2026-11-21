@@ -13,12 +13,13 @@ public record PredicaoRequest(
 ) {
 
     /**
-     * Vetor de caracteristicas (notas e frequencia) de uma disciplina, ja calculado pelo backend Java.
+     * Vetor de caracteristicas (etapas e frequencia) de uma disciplina.
      */
     public record DisciplinaFeature(
             String nomeDisciplina,
-            Double nota1,
-            Double nota2,
+            Double notaEtapa1,
+            Double notaEtapa2,
+            Double notaEtapa3,
             Double mediaAtual,
             Double notaNecessariaParaPassar,
             int quantidadeFaltas,
@@ -30,4 +31,3 @@ public record PredicaoRequest(
     ) {
     }
 }
-

@@ -7,10 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Orquestra a avaliacao de risco: tenta o motor preditivo em Python e, se indisponivel,
- * recorre ao modelo local equivalente.
- */
 @Service
 public class MotorPreditivoService {
 
@@ -38,8 +34,9 @@ public class MotorPreditivoService {
         List<PredicaoRequest.DisciplinaFeature> features = disciplinas.stream()
                 .map(d -> new PredicaoRequest.DisciplinaFeature(
                         d.getNomeDisciplina(),
-                        d.getNota1(),
-                        d.getNota2(),
+                        d.getNotaEtapa1(),
+                        d.getNotaEtapa2(),
+                        d.getNotaEtapa3(),
                         d.getMediaAtual(),
                         d.getNotaNecessariaParaPassar(),
                         d.getQuantidadeFaltas(),
@@ -51,9 +48,8 @@ public class MotorPreditivoService {
                 .toList();
         return new PredicaoRequest(
                 aluno.getId(),
-                aluno.getMediaMinimaAprovacao(),
+                CalculadoraDesempenho.normalizarMediaMinima(aluno),
                 CalculadoraDesempenho.frequenciaMinima(aluno),
                 features);
     }
 }
-

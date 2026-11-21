@@ -137,8 +137,8 @@ public class AlunoService {
 
     private void validarParametros(Aluno aluno) {
         Double media = aluno.getMediaMinimaAprovacao();
-        if (media == null || media <= 0.0 || media > CalculadoraDesempenho.NOTA_MAXIMA) {
-            throw new BusinessValidationException("A media minima de aprovacao deve estar entre 0.0 (exclusivo) e 10.0.");
+        if (media == null || media <= 0.0 || media > CalculadoraDesempenho.PONTUACAO_MAXIMA_TOTAL) {
+            throw new BusinessValidationException("A media minima de aprovacao deve estar entre 0.0 (exclusivo) e 100.0.");
         }
         Double frequencia = aluno.getFrequenciaMinimaExigida();
         if (frequencia == null || frequencia < 0.0 || frequencia > 100.0) {

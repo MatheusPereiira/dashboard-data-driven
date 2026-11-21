@@ -33,17 +33,26 @@ public class DisciplinaDesempenhoDTO {
 
     private Double percentualFrequencia;
 
-    @NotNull(message = "A Nota 1 e obrigatoria.")
-    @DecimalMin(value = "0.0", message = "A Nota 1 deve ser no minimo 0.0.")
-    @DecimalMax(value = "10.0", message = "A Nota 1 nao pode exceder 10.0.")
-    private Double nota1;
+    // Etapas da faculdade:
+    // Etapa 1: máx 25 pts (15 prova + 5 sala + 5 interdisciplinar)
+    @DecimalMin(value = "0.0", message = "A nota da Etapa 1 deve ser no minimo 0.0.")
+    @DecimalMax(value = "25.0", message = "A nota da Etapa 1 nao pode exceder 25.0 pontos.")
+    private Double notaEtapa1;
 
-    @DecimalMin(value = "0.0", message = "A Nota 2 deve ser no minimo 0.0.")
-    @DecimalMax(value = "10.0", message = "A Nota 2 nao pode exceder 10.0.")
-    private Double nota2;
+    // Etapa 2: máx 30 pts (15 prova + 10 interdisciplinar + 5 sala)
+    @DecimalMin(value = "0.0", message = "A nota da Etapa 2 deve ser no minimo 0.0.")
+    @DecimalMax(value = "30.0", message = "A nota da Etapa 2 nao pode exceder 30.0 pontos.")
+    private Double notaEtapa2;
 
+    // Etapa 3: máx 45 pts (25 prova + 10 sala + 10 prova F)
+    @DecimalMin(value = "0.0", message = "A nota da Etapa 3 deve ser no minimo 0.0.")
+    @DecimalMax(value = "45.0", message = "A nota da Etapa 3 nao pode exceder 45.0 pontos.")
+    private Double notaEtapa3;
+
+    // Total de pontos acumulados
     private Double mediaAtual;
 
+    // Pontos restantes para atingir a meta (60 pts)
     private Double notaNecessariaParaPassar;
 
     private Integer faltasRestantesPermitidas;
@@ -55,8 +64,8 @@ public class DisciplinaDesempenhoDTO {
 
     public DisciplinaDesempenhoDTO(String id, String alunoId, String nomeDisciplina, String semestreLetivo,
                                    Integer totalAulasSemestre, Integer quantidadeFaltas, Double percentualFrequencia,
-                                   Double nota1, Double nota2, Double mediaAtual, Double notaNecessariaParaPassar,
-                                   Integer faltasRestantesPermitidas, StatusSituacao statusSituacao) {
+                                   Double notaEtapa1, Double notaEtapa2, Double notaEtapa3, Double mediaAtual,
+                                   Double notaNecessariaParaPassar, Integer faltasRestantesPermitidas, StatusSituacao statusSituacao) {
         this.id = id;
         this.alunoId = alunoId;
         this.nomeDisciplina = nomeDisciplina;
@@ -64,8 +73,9 @@ public class DisciplinaDesempenhoDTO {
         this.totalAulasSemestre = totalAulasSemestre;
         this.quantidadeFaltas = quantidadeFaltas;
         this.percentualFrequencia = percentualFrequencia;
-        this.nota1 = nota1;
-        this.nota2 = nota2;
+        this.notaEtapa1 = notaEtapa1;
+        this.notaEtapa2 = notaEtapa2;
+        this.notaEtapa3 = notaEtapa3;
         this.mediaAtual = mediaAtual;
         this.notaNecessariaParaPassar = notaNecessariaParaPassar;
         this.faltasRestantesPermitidas = faltasRestantesPermitidas;
@@ -128,20 +138,45 @@ public class DisciplinaDesempenhoDTO {
         this.percentualFrequencia = percentualFrequencia;
     }
 
+    public Double getNotaEtapa1() {
+        return notaEtapa1;
+    }
+
+    public void setNotaEtapa1(Double notaEtapa1) {
+        this.notaEtapa1 = notaEtapa1;
+    }
+
+    public Double getNotaEtapa2() {
+        return notaEtapa2;
+    }
+
+    public void setNotaEtapa2(Double notaEtapa2) {
+        this.notaEtapa2 = notaEtapa2;
+    }
+
+    public Double getNotaEtapa3() {
+        return notaEtapa3;
+    }
+
+    public void setNotaEtapa3(Double notaEtapa3) {
+        this.notaEtapa3 = notaEtapa3;
+    }
+
+    // Compatibilidade com nota1 e nota2 se chamado
     public Double getNota1() {
-        return nota1;
+        return notaEtapa1;
     }
 
     public void setNota1(Double nota1) {
-        this.nota1 = nota1;
+        this.notaEtapa1 = nota1;
     }
 
     public Double getNota2() {
-        return nota2;
+        return notaEtapa2;
     }
 
     public void setNota2(Double nota2) {
-        this.nota2 = nota2;
+        this.notaEtapa2 = nota2;
     }
 
     public Double getMediaAtual() {
@@ -176,4 +211,3 @@ public class DisciplinaDesempenhoDTO {
         this.statusSituacao = statusSituacao;
     }
 }
-
