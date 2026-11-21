@@ -255,7 +255,12 @@ export const App: React.FC = () => {
                     Média para Passar
                   </span>
                   <span className="font-bold text-white">
-                    {Math.round(currentAluno.mediaMinimaAprovacao * 10)} pts / 100
+                    {Math.round(
+                      currentAluno.mediaMinimaAprovacao <= 10.0
+                        ? currentAluno.mediaMinimaAprovacao * 10
+                        : currentAluno.mediaMinimaAprovacao
+                    )}{' '}
+                    pts / 100
                   </span>
                 </div>
                 <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
