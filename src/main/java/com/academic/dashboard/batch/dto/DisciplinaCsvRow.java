@@ -6,20 +6,22 @@ public class DisciplinaCsvRow {
     private String semestreLetivo;
     private Integer totalAulasSemestre;
     private Integer quantidadeFaltas;
-    private Double nota1;
-    private Double nota2;
+    private Double notaEtapa1;
+    private Double notaEtapa2;
+    private Double notaEtapa3;
 
     public DisciplinaCsvRow() {
     }
 
     public DisciplinaCsvRow(String nomeDisciplina, String semestreLetivo, Integer totalAulasSemestre,
-                            Integer quantidadeFaltas, Double nota1, Double nota2) {
+                            Integer quantidadeFaltas, Double notaEtapa1, Double notaEtapa2, Double notaEtapa3) {
         this.nomeDisciplina = nomeDisciplina;
         this.semestreLetivo = semestreLetivo;
         this.totalAulasSemestre = totalAulasSemestre;
         this.quantidadeFaltas = quantidadeFaltas;
-        this.nota1 = nota1;
-        this.nota2 = nota2;
+        this.notaEtapa1 = notaEtapa1;
+        this.notaEtapa2 = notaEtapa2;
+        this.notaEtapa3 = notaEtapa3;
     }
 
     public String getNomeDisciplina() {
@@ -54,20 +56,44 @@ public class DisciplinaCsvRow {
         this.quantidadeFaltas = quantidadeFaltas;
     }
 
+    public Double getNotaEtapa1() {
+        return notaEtapa1;
+    }
+
+    public void setNotaEtapa1(Double notaEtapa1) {
+        this.notaEtapa1 = notaEtapa1;
+    }
+
+    public Double getNotaEtapa2() {
+        return notaEtapa2;
+    }
+
+    public void setNotaEtapa2(Double notaEtapa2) {
+        this.notaEtapa2 = notaEtapa2;
+    }
+
+    public Double getNotaEtapa3() {
+        return notaEtapa3;
+    }
+
+    public void setNotaEtapa3(Double notaEtapa3) {
+        this.notaEtapa3 = notaEtapa3;
+    }
+
+    // Compatibilidade reversa com chamadas legadas
     public Double getNota1() {
-        return nota1;
+        return notaEtapa1;
     }
 
     public void setNota1(Double nota1) {
-        this.nota1 = nota1;
+        this.notaEtapa1 = nota1;
     }
 
     public Double getNota2() {
-        return nota2;
+        return notaEtapa2;
     }
 
     public void setNota2(Double nota2) {
-        this.nota2 = nota2;
+        this.notaEtapa2 = nota2;
     }
 }
-

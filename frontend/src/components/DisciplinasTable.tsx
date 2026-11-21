@@ -10,7 +10,6 @@ import {
   Trash2,
   AlertCircle,
   CheckCircle,
-  HelpCircle,
   Flame,
 } from 'lucide-react';
 
@@ -38,6 +37,10 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSemester, setSelectedSemester] = useState<string>('TODOS');
   const [selectedStatus, setSelectedStatus] = useState<string>('TODOS');
+
+  // Normaliza meta de aprovação para escala 100 pontos
+  const metaAprovacao = mediaCorte <= 10.0 ? mediaCorte * 10 : mediaCorte;
+  const frequenciaExigida = freqMinima ?? 80.0;
 
   // Extract unique semesters
   const semestresDisponiveis = useMemo(() => {
@@ -70,7 +73,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
       case 'REGULAR':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30">
-            <CheckCircle className="w-3 h-3" /> Regular
+            <CheckCircle className="w-3 h-3" /> Em Curso
           </span>
         );
       case 'ATENCAO_NOTA':
@@ -99,53 +102,51 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-            <HelpCircle className="w-3 h-3" /> Pendente
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-400">
+            Pendente
           </span>
         );
     }
   };
 
   return (
-    <div className="glass-panel rounded-2xl overflow-hidden border border-slate-800 flex flex-col">
-      {/* Header and Toolbar */}
-      <div className="p-5 border-b border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      {/* Table Header and Action Strip */}
+      <div className="p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
             Desempenho por Componente Curricular
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-              {filteredDisciplinas.length} {filteredDisciplinas.length === 1 ? 'matéria' : 'matérias'}
-            </span>
-          </h3>
+          </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Gerenciamento detalhado de avaliações, frequência e projeções automáticas de aprovação
+            Métrica institucional FANS: 3 Etapas somando 100 pontos • Aprovação: 60 pts • Presença mínima: 80% (máx. 20% faltas)
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Buttons */}
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onBaixarModeloCsv}
-            title="Baixar planilha modelo CSV para importação"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition-colors"
+            title="Baixar planilha modelo de exemplo para preenchimento"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white text-xs font-medium transition-colors border border-slate-700/60"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Modelo CSV</span>
+            <span className="hidden sm:inline">Modelo CSV</span>
           </button>
 
           <button
             onClick={onAbrirImportacaoCsv}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 text-xs font-medium border border-indigo-500/30 transition-all hover:border-indigo-500/50"
+            title="Importar histórico do semestre via arquivo CSV"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-indigo-200 text-xs font-semibold transition-colors border border-indigo-500/30"
           >
-            <FileSpreadsheet className="w-4 h-4 text-indigo-400" />
-            <span>Importar Boletim CSV</span>
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>Importar CSV</span>
           </button>
 
           <button
             onClick={onNovaDisciplina}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all shadow-md shadow-indigo-600/20"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Lançar Disciplina</span>
           </button>
         </div>
@@ -173,7 +174,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
             <select
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(e.target.value)}
-              className="bg-slate-850 bg-slate-900 text-slate-300 rounded-lg px-2.5 py-1.5 border border-slate-850 border-slate-750 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-900 text-slate-300 rounded-lg px-2.5 py-1.5 border border-slate-750 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               <option value="TODOS">Todos os Semestres</option>
               {semestresDisponiveis.map((s) => (
@@ -194,7 +195,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
             >
               <option value="TODOS">Todos os Status</option>
               <option value="APROVADO">Aprovado</option>
-              <option value="REGULAR">Regular</option>
+              <option value="REGULAR">Em Curso</option>
               <option value="ATENCAO_NOTA">Atenção Nota</option>
               <option value="ATENCAO_FALTA">Atenção Falta</option>
               <option value="RISCO_CRITICO">Risco Crítico</option>
@@ -210,9 +211,10 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
           <thead className="bg-slate-900/90 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold text-[11px]">
             <tr>
               <th className="py-3 px-4">Disciplina / Período</th>
-              <th className="py-3 px-3 text-center">N1</th>
-              <th className="py-3 px-3 text-center">N2</th>
-              <th className="py-3 px-3 text-center">Média Atual</th>
+              <th className="py-3 px-3 text-center">1ª Etapa (25p)</th>
+              <th className="py-3 px-3 text-center">2ª Etapa (30p)</th>
+              <th className="py-3 px-3 text-center">3ª Etapa (45p)</th>
+              <th className="py-3 px-3 text-center">Total (100p)</th>
               <th className="py-3 px-4">Frequência & Faltas</th>
               <th className="py-3 px-4">Metas e Projeções</th>
               <th className="py-3 px-4 text-center">Situação</th>
@@ -222,7 +224,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
           <tbody className="divide-y divide-slate-800/60">
             {filteredDisciplinas.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-slate-500">
+                <td colSpan={9} className="py-12 text-center text-slate-500">
                   <p className="text-sm">Nenhuma disciplina encontrada com os filtros selecionados.</p>
                   <button
                     onClick={onNovaDisciplina}
@@ -234,10 +236,13 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
               </tr>
             ) : (
               filteredDisciplinas.map((disc) => {
-                const media = disc.mediaAtual ?? disc.nota1;
+                const e1 = disc.notaEtapa1 ?? disc.nota1;
+                const e2 = disc.notaEtapa2 ?? disc.nota2;
+                const e3 = disc.notaEtapa3;
+                const total = disc.mediaAtual ?? ((e1 ?? 0) + (e2 ?? 0) + (e3 ?? 0));
                 const freq = disc.percentualFrequencia ?? 100;
-                const isNotaOk = media >= mediaCorte;
-                const isFreqOk = freq >= freqMinima;
+                const isNotaOk = total >= metaAprovacao;
+                const isFreqOk = freq >= frequenciaExigida;
 
                 return (
                   <tr key={disc.id} className="hover:bg-slate-800/40 transition-colors">
@@ -254,30 +259,45 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                       </div>
                     </td>
 
-                    {/* Nota 1 */}
+                    {/* Etapa 1 */}
                     <td className="py-3.5 px-3 text-center font-mono font-medium text-slate-200">
-                      {disc.nota1.toFixed(1)}
-                    </td>
-
-                    {/* Nota 2 */}
-                    <td className="py-3.5 px-3 text-center font-mono font-medium text-slate-200">
-                      {disc.nota2 !== null && disc.nota2 !== undefined ? (
-                        disc.nota2.toFixed(1)
+                      {e1 !== undefined && e1 !== null ? (
+                        <span>{e1.toFixed(1)} <span className="text-[10px] text-slate-500">/25</span></span>
                       ) : (
-                        <span className="text-slate-500 italic">Pendente</span>
+                        <span className="text-slate-500 italic text-[11px]">Pendente</span>
                       )}
                     </td>
 
-                    {/* Média Atual */}
+                    {/* Etapa 2 */}
+                    <td className="py-3.5 px-3 text-center font-mono font-medium text-slate-200">
+                      {e2 !== undefined && e2 !== null ? (
+                        <span>{e2.toFixed(1)} <span className="text-[10px] text-slate-500">/30</span></span>
+                      ) : (
+                        <span className="text-slate-500 italic text-[11px]">Pendente</span>
+                      )}
+                    </td>
+
+                    {/* Etapa 3 */}
+                    <td className="py-3.5 px-3 text-center font-mono font-medium text-slate-200">
+                      {e3 !== undefined && e3 !== null ? (
+                        <span>{e3.toFixed(1)} <span className="text-[10px] text-slate-500">/45</span></span>
+                      ) : (
+                        <span className="text-slate-500 italic text-[11px]">Pendente</span>
+                      )}
+                    </td>
+
+                    {/* Total Acumulado */}
                     <td className="py-3.5 px-3 text-center">
                       <span
-                        className={`font-mono font-bold text-sm px-2 py-0.5 rounded-md ${
+                        className={`font-mono font-bold text-sm px-2.5 py-0.5 rounded-md ${
                           isNotaOk
-                            ? 'bg-emerald-500/10 text-emerald-400'
-                            : 'bg-amber-500/10 text-amber-400'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : total >= 40
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                            : 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/30'
                         }`}
                       >
-                        {media.toFixed(1)}
+                        {total.toFixed(1)}
                       </span>
                     </td>
 
@@ -308,7 +328,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                     {/* Projeções */}
                     <td className="py-3.5 px-4">
                       {disc.statusSituacao === 'APROVADO' ? (
-                        <span className="text-emerald-400 font-medium">Meta alcançada</span>
+                        <span className="text-emerald-400 font-medium">Meta de 60 pts alcançada</span>
                       ) : disc.statusSituacao === 'REPROVADO' ? (
                         <span className="text-rose-400 font-medium">Reprovação consolidada</span>
                       ) : (
@@ -317,7 +337,7 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                             disc.notaNecessariaParaPassar !== null &&
                             disc.notaNecessariaParaPassar > 0 && (
                               <div className="text-amber-300">
-                                Precisa de <strong className="font-semibold text-white">{disc.notaNecessariaParaPassar.toFixed(1)}</strong> na N2
+                                Faltam <strong className="font-semibold text-white">{disc.notaNecessariaParaPassar.toFixed(1)} pts</strong> para 60
                               </div>
                             )}
                           {disc.faltasRestantesPermitidas !== undefined &&
@@ -341,20 +361,20 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                       {renderStatusBadge(disc.statusSituacao)}
                     </td>
 
-                    {/* Actions */}
+                    {/* Ações */}
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => onEditarDisciplina(disc)}
                           title="Editar notas ou faltas"
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition-colors"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => disc.id && onExcluirDisciplina(disc.id, disc.nomeDisciplina)}
+                          onClick={() => onExcluirDisciplina(disc.id!, disc.nomeDisciplina)}
                           title="Excluir disciplina"
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

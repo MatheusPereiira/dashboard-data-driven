@@ -23,8 +23,8 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
   const [matricula, setMatricula] = useState('');
   const [curso, setCurso] = useState('');
   const [semestreAtual, setSemestreAtual] = useState<number>(1);
-  const [mediaMinimaAprovacao, setMediaMinimaAprovacao] = useState<string>('6.0');
-  const [frequenciaMinimaExigida, setFrequenciaMinimaExigida] = useState<string>('75.0');
+  const [mediaMinimaAprovacao, setMediaMinimaAprovacao] = useState<string>('60.0');
+  const [frequenciaMinimaExigida, setFrequenciaMinimaExigida] = useState<string>('80.0');
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,19 +36,23 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
       setMatricula(initialData.matricula);
       setCurso(initialData.curso);
       setSemestreAtual(initialData.semestreAtual);
-      setMediaMinimaAprovacao(initialData.mediaMinimaAprovacao.toString());
+      setMediaMinimaAprovacao(
+        initialData.mediaMinimaAprovacao <= 10.0
+          ? (initialData.mediaMinimaAprovacao * 10).toString()
+          : initialData.mediaMinimaAprovacao.toString()
+      );
       setFrequenciaMinimaExigida(
         initialData.frequenciaMinimaExigida !== undefined
           ? initialData.frequenciaMinimaExigida.toString()
-          : '75.0'
+          : '80.0'
       );
     } else {
       setNome('');
       setMatricula('');
       setCurso('');
       setSemestreAtual(1);
-      setMediaMinimaAprovacao('6.0');
-      setFrequenciaMinimaExigida('75.0');
+      setMediaMinimaAprovacao('60.0');
+      setFrequenciaMinimaExigida('80.0');
     }
     setError(null);
     setConfirmDelete(false);
@@ -79,8 +83,8 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
       setError('O semestre atual deve estar entre 1 e 20.');
       return;
     }
-    if (isNaN(media) || media <= 0 || media > 10) {
-      setError('A média mínima de aprovação deve ser maior que 0.0 e no máximo 10.0.');
+    if (isNaN(media) || media <= 0 || media > 100) {
+      setError('A pontuação mínima de aprovação deve ser maior que 0.0 e no máximo 100.0 pontos.');
       return;
     }
     if (isNaN(freq) || freq < 0 || freq > 100) {
@@ -103,7 +107,7 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
       await onSave(payload);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Erro ao salvar o perfil do discente.');
+      setError(err.message || 'Erro ao registrar os dados do estudante.');
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +120,7 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
       await onDelete(initialData.id);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Erro ao excluir o aluno.');
+      setError(err.message || 'Erro ao excluir o estudante.');
     } finally {
       setIsSubmitting(false);
     }
@@ -133,10 +137,12 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold text-white">
-                {isEditing ? 'Parâmetros e Perfil do Aluno' : 'Cadastrar Estudante'}
+                {isEditing ? 'Editar Perfil Discente' : 'Cadastrar Estudante'}
               </h3>
               <p className="text-xs text-slate-400">
-                Configure os critérios normativos da sua instituição
+                {isEditing
+                  ? 'Ajuste dados de matrícula ou parâmetros da faculdade'
+                  : 'Preencha os dados do estudante para iniciar o monitoramento'}
               </p>
             </div>
           </div>
@@ -148,7 +154,7 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
           </button>
         </div>
 
-        {/* Body */}
+        {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4 text-xs">
           {error && (
             <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-start gap-2">
@@ -157,34 +163,34 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
             </div>
           )}
 
-          {/* Nome */}
+          {/* Nome Completo */}
           <div>
             <label className="block font-semibold text-slate-300 mb-1">
-              Nome Completo *
+              Nome Completo do Aluno *
             </label>
             <input
               type="text"
               required
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="ex.: Matheus Pereira da Silva"
+              placeholder="ex.: Matheus Pereira Silva"
               className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
             />
           </div>
 
-          {/* Grid: Matrícula & Curso */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Grid 2 col: Matrícula & Curso */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
-                Matrícula *
+                Matrícula / RA *
               </label>
               <input
                 type="text"
                 required
                 value={matricula}
                 onChange={(e) => setMatricula(e.target.value)}
-                placeholder="ex.: 202410123"
-                className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
+                placeholder="ex.: 2024120"
+                className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
             </div>
 
@@ -204,7 +210,7 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
           </div>
 
           {/* Grid: Semestre Atual, Média Mínima, Frequência Mínima */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
                 Semestre Atual *
@@ -219,28 +225,32 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
                 placeholder="1"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">Ex.: 1 a 10º período</span>
             </div>
 
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
-                Média de Corte *
+                Meta de Aprovação (pts) *
               </label>
               <input
                 type="number"
-                step="0.1"
-                min="0.1"
-                max="10"
+                step="0.5"
+                min="1"
+                max="100"
                 required
                 value={mediaMinimaAprovacao}
                 onChange={(e) => setMediaMinimaAprovacao(e.target.value)}
-                placeholder="6.0 ou 7.0"
+                placeholder="60.0"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">
+                FANS: 60 pontos em 100
+              </span>
             </div>
 
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
-                Freq. Mínima (%) *
+                Presença Mínima (%) *
               </label>
               <input
                 type="number"
@@ -250,9 +260,12 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
                 required
                 value={frequenciaMinimaExigida}
                 onChange={(e) => setFrequenciaMinimaExigida(e.target.value)}
-                placeholder="75.0"
+                placeholder="80.0"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">
+                FANS: 80% (máx 20% faltas)
+              </span>
             </div>
           </div>
 
@@ -271,13 +284,13 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
               ) : (
                 <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-600/50 flex items-center justify-between">
                   <span className="text-xs text-rose-200 font-semibold">
-                    Tem certeza? Todos os dados serão perdidos.
+                    Confirmar exclusão irreversível?
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setConfirmDelete(false)}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs"
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs hover:bg-slate-700"
                     >
                       Cancelar
                     </button>
@@ -285,9 +298,9 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
                       type="button"
                       onClick={handleDelete}
                       disabled={isSubmitting}
-                      className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold"
+                      className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
                     >
-                      Confirmar
+                      Sim, Excluir
                     </button>
                   </div>
                 </div>
@@ -310,7 +323,7 @@ export const AlunoModal: React.FC<AlunoModalProps> = ({
               disabled={isSubmitting}
               className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium shadow-md shadow-indigo-600/30 transition-all disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Criar Perfil Discente'}
+              {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar Perfil' : 'Salvar Estudante'}
             </button>
           </div>
         </form>

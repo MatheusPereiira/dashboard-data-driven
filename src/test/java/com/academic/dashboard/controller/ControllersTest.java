@@ -56,14 +56,14 @@ class ControllersTest {
 
     @Test
     void criarAlunoRetorna201ComLocation() throws Exception {
-        AlunoDTO salvo = new AlunoDTO(ID, "Ana", "2024001", "Eng. Software", 4, 6.0, 75.0);
+        AlunoDTO salvo = new AlunoDTO(ID, "Ana", "2024001", "Eng. Software", 4, 60.0, 80.0);
         when(alunoService.criar(any())).thenReturn(salvo);
 
         mvc.perform(post("/api/v1/alunos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"nome":"Ana","matricula":"2024001","curso":"Eng. Software",
-                                 "semestreAtual":4,"mediaMinimaAprovacao":6.0}
+                                 "semestreAtual":4,"mediaMinimaAprovacao":60.0}
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/api/v1/alunos/" + ID))
@@ -74,7 +74,7 @@ class ControllersTest {
     void payloadInvalidoRetorna400ComErrosPorCampo() throws Exception {
         mvc.perform(post("/api/v1/alunos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nome\":\"\",\"mediaMinimaAprovacao\":11}"))
+                        .content("{\"nome\":\"\",\"mediaMinimaAprovacao\":105}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.nome").exists())
                 .andExpect(jsonPath("$.fieldErrors.mediaMinimaAprovacao").exists());

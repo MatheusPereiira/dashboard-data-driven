@@ -26,9 +26,9 @@ public class BatchImportController {
 
     /** Cabecalho esperado pelo leitor do Spring Batch (CsvReaderConfig). */
     static final String MODELO_CSV = """
-            nomeDisciplina,semestreLetivo,totalAulasSemestre,quantidadeFaltas,nota1,nota2
-            Estrutura de Dados,2026.2,80,6,7.5,8.0
-            Banco de Dados,2026.2,60,12,5.0,
+            nomeDisciplina,semestreLetivo,totalAulasSemestre,quantidadeFaltas,notaEtapa1,notaEtapa2,notaEtapa3
+            Estrutura de Dados,2026.1,80,6,22.5,26.0,38.0
+            Banco de Dados,2026.1,60,12,18.0,22.0,
             """;
 
     private final BatchImportService batchImportService;

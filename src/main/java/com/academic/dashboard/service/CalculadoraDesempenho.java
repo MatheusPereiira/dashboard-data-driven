@@ -10,61 +10,81 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Motor de calculo academico por disciplina (regras deterministicas, sem I/O).
- *
- * <p>Premissas adotadas:
- * <ul>
- *   <li>Duas avaliacoes com pesos iguais: media final = (nota1 + nota2) / 2.</li>
- *   <li>Enquanto a nota2 estiver pendente, a media atual corresponde a media das avaliacoes ja registradas (nota1)
- *       e a nota necessaria e a pontuacao minima na Avaliacao 2 para atingir a media minima da instituicao.</li>
- *   <li>Limite de faltas = piso(totalAulas x (100 - frequenciaMinima) / 100). Ultrapassar o limite reprova por frequencia.</li>
- * </ul>
+ * Motor de cálculo acadêmico por disciplina adaptado às regras da FANS:
+ * - 3 Etapas somando 100 pontos:
+ *   - Etapa 1: máx 25 pts (15 prova + 5 sala + 5 interdisciplinar)
+ *   - Etapa 2: máx 30 pts (15 prova + 5 sala + 10 interdisciplinar)
+ *   - Etapa 3: máx 45 pts (25 prova + 10 sala + 10 prova F interdisciplinar)
+ * - Meta de aprovação: soma das 3 etapas >= 60 pontos
+ * - Assiduidade: limite máximo de 20% de faltas (mínimo 80% de presença)
  */
 @Component
 public class CalculadoraDesempenho {
 
-    public static final double NOTA_MAXIMA = 10.0;
-    public static final double FREQUENCIA_MINIMA_PADRAO = 75.0;
+    public static final double PONTUACAO_MAXIMA_TOTAL = 100.0;
+    public static final double PONTOS_ETAPA_1 = 25.0;
+    public static final double PONTOS_ETAPA_2 = 30.0;
+    public static final double PONTOS_ETAPA_3 = 45.0;
 
-    /** Nota necessaria na avaliacao pendente a partir da qual a disciplina e considerada em risco critico. */
-    static final double LIMIAR_NOTA_CRITICA = 8.0;
-    /** Fracao do limite de faltas consumida a partir da qual a disciplina entra em atencao. */
+    public static final double MEDIA_MINIMA_PADRAO = 60.0;
+    public static final double FREQUENCIA_MINIMA_PADRAO = 80.0;
+
+    /** Se o que falta para passar na última etapa for mais de 35 pontos (de 45), entra em risco crítico */
+    static final double LIMIAR_PONTOS_CRITICOS = 35.0;
     static final double LIMIAR_CONSUMO_FALTAS_ATENCAO = 0.75;
-    /** Fracao do limite de faltas consumida a partir da qual a disciplina entra em risco critico. */
     static final double LIMIAR_CONSUMO_FALTAS_CRITICO = 0.90;
 
     private static final double EPSILON = 1e-9;
 
-    /**
-     * Calcula e preenche na entidade os indicadores derivados: percentual de frequencia, media atual,
-     * nota necessaria para aprovacao, saldo de faltas e situacao.
-     */
     public void calcular(DisciplinaDesempenho disciplina, Aluno aluno) {
         int totalAulas = disciplina.getTotalAulasSemestre();
         int faltas = disciplina.getQuantidadeFaltas();
-        double mediaMinima = aluno.getMediaMinimaAprovacao();
+        double mediaMinima = normalizarMediaMinima(aluno);
         int limiteFaltas = calcularLimiteFaltas(totalAulas, frequenciaMinima(aluno));
 
         disciplina.setPercentualFrequencia(arredondar((totalAulas - faltas) * 100.0 / totalAulas));
         disciplina.setFaltasRestantesPermitidas(Math.max(0, limiteFaltas - faltas));
 
-        Double nota1 = disciplina.getNota1();
-        Double nota2 = disciplina.getNota2();
-        if (nota1 != null && nota2 != null) {
-            disciplina.setMediaAtual(arredondar((nota1 + nota2) / 2.0));
-            disciplina.setNotaNecessariaParaPassar(null);
-        } else if (nota1 != null) {
-            disciplina.setMediaAtual(arredondar(nota1));
-            disciplina.setNotaNecessariaParaPassar(arredondar(Math.max(0.0, 2 * mediaMinima - nota1)));
-        } else {
-            disciplina.setMediaAtual(null);
-            disciplina.setNotaNecessariaParaPassar(arredondar(mediaMinima));
+        Double e1 = disciplina.getNotaEtapa1();
+        Double e2 = disciplina.getNotaEtapa2();
+        Double e3 = disciplina.getNotaEtapa3();
+
+        double pontosAcumulados = 0.0;
+        int etapasLancadas = 0;
+        double pontosMaximosRestantes = PONTUACAO_MAXIMA_TOTAL;
+
+        if (e1 != null) {
+            pontosAcumulados += e1;
+            etapasLancadas++;
+            pontosMaximosRestantes -= PONTOS_ETAPA_1;
+        }
+        if (e2 != null) {
+            pontosAcumulados += e2;
+            etapasLancadas++;
+            pontosMaximosRestantes -= PONTOS_ETAPA_2;
+        }
+        if (e3 != null) {
+            pontosAcumulados += e3;
+            etapasLancadas++;
+            pontosMaximosRestantes -= PONTOS_ETAPA_3;
         }
 
-        disciplina.setStatusSituacao(classificar(disciplina, mediaMinima, limiteFaltas));
+        if (etapasLancadas > 0) {
+            disciplina.setMediaAtual(arredondar(pontosAcumulados));
+        } else {
+            disciplina.setMediaAtual(0.0);
+        }
+
+        double pontosNecessarios = Math.max(0.0, mediaMinima - pontosAcumulados);
+        if (etapasLancadas == 3) {
+            disciplina.setNotaNecessariaParaPassar(0.0);
+        } else {
+            disciplina.setNotaNecessariaParaPassar(arredondar(pontosNecessarios));
+        }
+
+        disciplina.setStatusSituacao(classificar(disciplina, mediaMinima, limiteFaltas, pontosMaximosRestantes, etapasLancadas));
     }
 
-    /** Quantidade maxima de faltas permitidas antes da reprovacao por frequencia. */
     public int calcularLimiteFaltas(int totalAulas, double frequenciaMinimaExigida) {
         return (int) Math.floor(totalAulas * (100.0 - frequenciaMinimaExigida) / 100.0 + EPSILON);
     }
@@ -73,7 +93,6 @@ public class CalculadoraDesempenho {
         return calcularLimiteFaltas(disciplina.getTotalAulasSemestre(), frequenciaMinima(aluno));
     }
 
-    /** Fracao (0..1+) do limite de faltas ja consumida. */
     public double consumoLimiteFaltas(int faltas, int limiteFaltas) {
         if (limiteFaltas <= 0) {
             return faltas > 0 ? 1.0 : 0.0;
@@ -82,7 +101,7 @@ public class CalculadoraDesempenho {
     }
 
     public boolean possuiAvaliacaoPendente(DisciplinaDesempenho disciplina) {
-        return disciplina.getNota1() == null || disciplina.getNota2() == null;
+        return disciplina.getNotaEtapa1() == null || disciplina.getNotaEtapa2() == null || disciplina.getNotaEtapa3() == null;
     }
 
     public static boolean emAlerta(StatusSituacao status) {
@@ -92,13 +111,10 @@ public class CalculadoraDesempenho {
                 || status == StatusSituacao.REPROVADO;
     }
 
-    /**
-     * Gera diagnosticos objetivos (alertas e metas) para uma disciplina ja calculada.
-     */
     public List<String> gerarAlertas(DisciplinaDesempenho disciplina, Aluno aluno) {
         List<String> alertas = new ArrayList<>();
         String nome = disciplina.getNomeDisciplina();
-        double mediaMinima = aluno.getMediaMinimaAprovacao();
+        double mediaMinima = normalizarMediaMinima(aluno);
         double frequenciaMinima = frequenciaMinima(aluno);
         int faltas = disciplina.getQuantidadeFaltas();
         int limiteFaltas = calcularLimiteFaltas(disciplina, aluno);
@@ -107,54 +123,73 @@ public class CalculadoraDesempenho {
         if (faltas > limiteFaltas) {
             alertas.add(String.format(Locale.ROOT,
                     "Reprovacao por frequencia em %s: %d faltas registradas, acima do limite de %d "
-                            + "(frequencia de %.1f%%, minimo exigido de %.1f%%).",
+                            + "(presenca de %.1f%%, minimo exigido de %.1f%%).",
                     nome, faltas, limiteFaltas, disciplina.getPercentualFrequencia(), frequenciaMinima));
         } else if (consumo >= LIMIAR_CONSUMO_FALTAS_ATENCAO) {
             alertas.add(String.format(Locale.ROOT,
-                    "Atencao em %s: %.0f%% do limite de ausencias ja utilizado (restam %d faltas permitidas).",
+                    "Atencao em %s: %.0f%% do limite de faltas ja utilizado (restam %d faltas permitidas).",
                     nome, Math.min(consumo, 1.0) * 100, disciplina.getFaltasRestantesPermitidas()));
         }
 
+        double pontosAcumulados = disciplina.getMediaAtual() != null ? disciplina.getMediaAtual() : 0.0;
+        Double necessarios = disciplina.getNotaNecessariaParaPassar();
+
         if (possuiAvaliacaoPendente(disciplina)) {
-            Double necessaria = disciplina.getNotaNecessariaParaPassar();
-            if (necessaria != null && necessaria > NOTA_MAXIMA) {
+            if (disciplina.getStatusSituacao() == StatusSituacao.REPROVADO) {
                 alertas.add(String.format(Locale.ROOT,
-                        "Em %s seria necessaria nota %.1f na Avaliacao 2, acima do maximo de %.1f: "
-                                + "aprovacao por media inviavel.",
-                        nome, necessaria, NOTA_MAXIMA));
-            } else if (necessaria != null && necessaria > 0.0) {
+                        "Em %s, mesmo alcancando pontuacao maxima nas etapas restantes, nao e possivel atingir %.0f pontos: reprovacao iminente.",
+                        nome, mediaMinima));
+            } else if (necessarios != null && necessarios > 0.0) {
                 alertas.add(String.format(Locale.ROOT,
-                        "Para atingir a media %.1f em %s, e necessario obter nota minima de %.1f na Avaliacao 2.",
-                        mediaMinima, nome, necessaria));
+                        "Meta em %s: voce possui %.1f pontos acumulados. Faltam %.1f pontos para alcancar os %.0f pontos de aprovacao.",
+                        nome, pontosAcumulados, necessarios, mediaMinima));
+            } else {
+                alertas.add(String.format(Locale.ROOT,
+                        "Parabens! Em %s voce ja garantiu %.1f pontos, ultrapassando os %.0f pontos de aprovacao.",
+                        nome, pontosAcumulados, mediaMinima));
             }
-        } else if (disciplina.getMediaAtual() != null && disciplina.getMediaAtual() < mediaMinima - EPSILON) {
-            alertas.add(String.format(Locale.ROOT,
-                    "Reprovacao por nota em %s: media final %.1f abaixo da media minima de %.1f.",
-                    nome, disciplina.getMediaAtual(), mediaMinima));
+        } else {
+            if (pontosAcumulados < mediaMinima - EPSILON) {
+                alertas.add(String.format(Locale.ROOT,
+                        "Reprovacao por nota em %s: pontuacao final de %.1f abaixo dos %.0f pontos exigidos.",
+                        nome, pontosAcumulados, mediaMinima));
+            } else {
+                alertas.add(String.format(Locale.ROOT,
+                        "Aprovado em %s com pontuacao final de %.1f pontos!",
+                        nome, pontosAcumulados));
+            }
         }
         return alertas;
     }
 
-    private StatusSituacao classificar(DisciplinaDesempenho disciplina, double mediaMinima, int limiteFaltas) {
+    private StatusSituacao classificar(DisciplinaDesempenho disciplina, double mediaMinima, int limiteFaltas,
+                                       double pontosMaximosRestantes, int etapasLancadas) {
         int faltas = disciplina.getQuantidadeFaltas();
         if (faltas > limiteFaltas) {
             return StatusSituacao.REPROVADO;
         }
 
-        if (!possuiAvaliacaoPendente(disciplina)) {
-            return disciplina.getMediaAtual() + EPSILON >= mediaMinima
-                    ? StatusSituacao.APROVADO
-                    : StatusSituacao.REPROVADO;
+        double pontosAcumulados = disciplina.getMediaAtual() != null ? disciplina.getMediaAtual() : 0.0;
+
+        // Se já atingiu 60 pontos mesmo com etapas restantes, já está garantido na nota
+        if (pontosAcumulados >= mediaMinima - EPSILON && etapasLancadas == 3) {
+            return StatusSituacao.APROVADO;
         }
 
-        double necessaria = disciplina.getNotaNecessariaParaPassar();
-        if (necessaria > NOTA_MAXIMA + EPSILON) {
+        // Se mesmo tirando nota máxima no que resta não atinge os 60 pontos
+        if (pontosAcumulados + pontosMaximosRestantes < mediaMinima - EPSILON) {
             return StatusSituacao.REPROVADO;
         }
 
+        if (etapasLancadas == 3) {
+            return pontosAcumulados >= mediaMinima - EPSILON ? StatusSituacao.APROVADO : StatusSituacao.REPROVADO;
+        }
+
         double consumo = consumoLimiteFaltas(faltas, limiteFaltas);
-        boolean atencaoNota = necessaria > mediaMinima + EPSILON;
-        boolean criticoNota = necessaria >= LIMIAR_NOTA_CRITICA - EPSILON;
+        double pontosNecessarios = disciplina.getNotaNecessariaParaPassar() != null ? disciplina.getNotaNecessariaParaPassar() : 0.0;
+
+        boolean atencaoNota = pontosNecessarios > (pontosMaximosRestantes * 0.60);
+        boolean criticoNota = pontosNecessarios >= LIMIAR_PONTOS_CRITICOS || pontosNecessarios > (pontosMaximosRestantes * 0.85);
         boolean atencaoFalta = consumo >= LIMIAR_CONSUMO_FALTAS_ATENCAO;
         boolean criticoFalta = consumo >= LIMIAR_CONSUMO_FALTAS_CRITICO;
 
@@ -170,8 +205,17 @@ public class CalculadoraDesempenho {
         return StatusSituacao.REGULAR;
     }
 
+    public static double normalizarMediaMinima(Aluno aluno) {
+        if (aluno == null || aluno.getMediaMinimaAprovacao() == null) {
+            return MEDIA_MINIMA_PADRAO;
+        }
+        double val = aluno.getMediaMinimaAprovacao();
+        // Se aluno tiver configurado como 6.0 (escala antiga 0-10), normaliza para 60.0
+        return val <= 10.0 ? val * 10.0 : val;
+    }
+
     public static double frequenciaMinima(Aluno aluno) {
-        return aluno.getFrequenciaMinimaExigida() != null
+        return aluno != null && aluno.getFrequenciaMinimaExigida() != null
                 ? aluno.getFrequenciaMinimaExigida()
                 : FREQUENCIA_MINIMA_PADRAO;
     }

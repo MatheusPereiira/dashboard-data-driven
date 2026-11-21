@@ -23,8 +23,9 @@ public final class DisciplinaMapper {
                 entity.getTotalAulasSemestre(),
                 entity.getQuantidadeFaltas(),
                 entity.getPercentualFrequencia(),
-                entity.getNota1(),
-                entity.getNota2(),
+                entity.getNotaEtapa1(),
+                entity.getNotaEtapa2(),
+                entity.getNotaEtapa3(),
                 entity.getMediaAtual(),
                 entity.getNotaNecessariaParaPassar(),
                 entity.getFaltasRestantesPermitidas(),
@@ -44,8 +45,9 @@ public final class DisciplinaMapper {
                 dto.getTotalAulasSemestre(),
                 dto.getQuantidadeFaltas(),
                 dto.getPercentualFrequencia(),
-                dto.getNota1(),
-                dto.getNota2(),
+                dto.getNotaEtapa1(),
+                dto.getNotaEtapa2(),
+                dto.getNotaEtapa3(),
                 dto.getMediaAtual(),
                 dto.getNotaNecessariaParaPassar(),
                 dto.getFaltasRestantesPermitidas(),
@@ -62,4 +64,3 @@ public final class DisciplinaMapper {
                 .toList();
     }
 }
-

@@ -105,11 +105,9 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">
-                Importação de Boletim em Lote
-              </h3>
+              <h3 className="text-base font-bold text-white">Importação em Lote via CSV</h3>
               <p className="text-xs text-slate-400">
-                Processamento em lote via Spring Batch com persistência estruturada
+                Padrão FANS: nomeDisciplina, semestreLetivo, totalAulasSemestre, quantidadeFaltas, notaEtapa1, notaEtapa2, notaEtapa3
               </p>
             </div>
           </div>
@@ -130,23 +128,21 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             </div>
           )}
 
-          {/* Template Info & Download */}
+          {/* Instructions & Template download */}
           <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3">
             <div>
-              <p className="font-semibold text-slate-200">
-                Modelo Oficial de Planilha (.csv)
-              </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Colunas: <code className="text-indigo-300">nomeDisciplina,semestreLetivo,totalAulasSemestre,quantidadeFaltas,nota1,nota2</code>
+              <p className="font-semibold text-slate-200">Precisa da planilha padrão?</p>
+              <p className="text-slate-400 text-[11px] mt-0.5">
+                Baixe o template pré-formatado com as colunas das 3 etapas.
               </p>
             </div>
             <button
               type="button"
               onClick={onDownloadTemplate}
-              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition-colors flex-shrink-0"
             >
               <Download className="w-3.5 h-3.5" />
-              Baixar Modelo
+              <span>Baixar Modelo</span>
             </button>
           </div>
 
@@ -248,15 +244,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               disabled={isUploading}
               className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
             >
-              {report ? 'Concluir' : 'Cancelar'}
+              {report ? 'Fechar' : 'Cancelar'}
             </button>
-
             {!report && (
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={!selectedFile || isUploading}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium shadow-md shadow-indigo-600/30 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition-all disabled:opacity-50"
               >
                 {isUploading ? (
                   <>

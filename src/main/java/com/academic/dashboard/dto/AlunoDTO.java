@@ -31,12 +31,12 @@ public class AlunoDTO {
 
     @NotNull(message = "A media minima de aprovacao e obrigatoria.")
     @DecimalMin(value = "0.0", inclusive = false, message = "A media minima deve ser maior que 0.0.")
-    @DecimalMax(value = "10.0", message = "A media minima nao pode exceder 10.0.")
+    @DecimalMax(value = "100.0", message = "A media minima nao pode exceder 100.0.")
     private Double mediaMinimaAprovacao;
 
     @DecimalMin(value = "0.0", message = "A frequencia minima exigida nao pode ser negativa.")
     @DecimalMax(value = "100.0", message = "A frequencia minima exigida nao pode exceder 100.0%.")
-    private Double frequenciaMinimaExigida = 75.0;
+    private Double frequenciaMinimaExigida = 80.0;
 
     public AlunoDTO() {
     }
@@ -49,7 +49,7 @@ public class AlunoDTO {
         this.curso = curso;
         this.semestreAtual = semestreAtual;
         this.mediaMinimaAprovacao = mediaMinimaAprovacao;
-        this.frequenciaMinimaExigida = frequenciaMinimaExigida != null ? frequenciaMinimaExigida : 75.0;
+        this.frequenciaMinimaExigida = frequenciaMinimaExigida != null ? frequenciaMinimaExigida : 80.0;
     }
 
     public String getId() {

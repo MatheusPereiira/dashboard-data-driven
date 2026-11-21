@@ -29,7 +29,7 @@ public final class AlunoMapper {
         }
         Double frequenciaMinima = dto.getFrequenciaMinimaExigida() != null
                 ? dto.getFrequenciaMinimaExigida()
-                : 75.0;
+                : 80.0;
         return new Aluno(
                 dto.getId(),
                 dto.getNome() != null ? dto.getNome().trim() : null,

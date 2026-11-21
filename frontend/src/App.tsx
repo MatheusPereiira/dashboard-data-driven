@@ -252,18 +252,18 @@ export const App: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
                   <span className="text-slate-400 block text-[10px] uppercase font-semibold">
-                    Corte Institucional
+                    Média para Passar
                   </span>
                   <span className="font-bold text-white">
-                    Nota {currentAluno.mediaMinimaAprovacao.toFixed(1)}
+                    {Math.round(currentAluno.mediaMinimaAprovacao * 10)} pts / 100
                   </span>
                 </div>
                 <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
                   <span className="text-slate-400 block text-[10px] uppercase font-semibold">
-                    Assiduidade Mínima
+                    Presença Mínima
                   </span>
                   <span className="font-bold text-white">
-                    {currentAluno.frequenciaMinimaExigida ?? 75.0}%
+                    {currentAluno.frequenciaMinimaExigida ?? 80.0}% (máx. 20% faltas)
                   </span>
                 </div>
               </div>
@@ -294,7 +294,7 @@ export const App: React.FC = () => {
                 <DisciplinasTable
                   disciplinas={dashboard.disciplinas}
                   mediaCorte={currentAluno.mediaMinimaAprovacao}
-                  freqMinima={currentAluno.frequenciaMinimaExigida ?? 75.0}
+                  freqMinima={currentAluno.frequenciaMinimaExigida ?? 80.0}
                   onNovaDisciplina={handleOpenNovaDisciplina}
                   onEditarDisciplina={handleOpenEditarDisciplina}
                   onExcluirDisciplina={handleDeleteDisciplina}

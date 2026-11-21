@@ -56,8 +56,9 @@ public class DisciplinaItemProcessor implements ItemProcessor<DisciplinaCsvRow, 
         entidade.setSemestreLetivo(semestreLetivo);
         entidade.setTotalAulasSemestre(row.getTotalAulasSemestre());
         entidade.setQuantidadeFaltas(row.getQuantidadeFaltas());
-        entidade.setNota1(row.getNota1());
-        entidade.setNota2(row.getNota2());
+        entidade.setNotaEtapa1(row.getNotaEtapa1());
+        entidade.setNotaEtapa2(row.getNotaEtapa2());
+        entidade.setNotaEtapa3(row.getNotaEtapa3());
 
         // Valida invariantes do domínio
         DesempenhoService.validarDados(entidade);

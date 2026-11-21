@@ -34,8 +34,9 @@ public class DisciplinaItemWriter implements ItemWriter<DisciplinaDesempenho> {
                 DisciplinaDesempenho existente = existentes.getFirst();
                 existente.setTotalAulasSemestre(item.getTotalAulasSemestre());
                 existente.setQuantidadeFaltas(item.getQuantidadeFaltas());
-                existente.setNota1(item.getNota1());
-                existente.setNota2(item.getNota2());
+                existente.setNotaEtapa1(item.getNotaEtapa1());
+                existente.setNotaEtapa2(item.getNotaEtapa2());
+                existente.setNotaEtapa3(item.getNotaEtapa3());
                 existente.setPercentualFrequencia(item.getPercentualFrequencia());
                 existente.setMediaAtual(item.getMediaAtual());
                 existente.setNotaNecessariaParaPassar(item.getNotaNecessariaParaPassar());

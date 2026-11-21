@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DisciplinaDesempenhoDTO } from '../types/api';
-import { X, BookOpen, AlertCircle, Calculator } from 'lucide-react';
+import { X, BookOpen, AlertCircle, Calculator, Info } from 'lucide-react';
 
 interface DisciplinaModalProps {
   isOpen: boolean;
@@ -23,10 +23,11 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
 
   const [nomeDisciplina, setNomeDisciplina] = useState('');
   const [semestreLetivo, setSemestreLetivo] = useState('2026.1');
-  const [totalAulasSemestre, setTotalAulasSemestre] = useState<number>(60);
+  const [totalAulasSemestre, setTotalAulasSemestre] = useState<number>(80);
   const [quantidadeFaltas, setQuantidadeFaltas] = useState<number>(0);
-  const [nota1, setNota1] = useState<string>('');
-  const [nota2, setNota2] = useState<string>('');
+  const [notaEtapa1, setNotaEtapa1] = useState<string>('');
+  const [notaEtapa2, setNotaEtapa2] = useState<string>('');
+  const [notaEtapa3, setNotaEtapa3] = useState<string>('');
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,15 +38,33 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
       setSemestreLetivo(initialData.semestreLetivo);
       setTotalAulasSemestre(initialData.totalAulasSemestre);
       setQuantidadeFaltas(initialData.quantidadeFaltas);
-      setNota1(initialData.nota1.toString());
-      setNota2(initialData.nota2 !== null && initialData.nota2 !== undefined ? initialData.nota2.toString() : '');
+      setNotaEtapa1(
+        initialData.notaEtapa1 !== null && initialData.notaEtapa1 !== undefined
+          ? initialData.notaEtapa1.toString()
+          : initialData.nota1 !== undefined && initialData.nota1 !== null
+          ? initialData.nota1.toString()
+          : ''
+      );
+      setNotaEtapa2(
+        initialData.notaEtapa2 !== null && initialData.notaEtapa2 !== undefined
+          ? initialData.notaEtapa2.toString()
+          : initialData.nota2 !== undefined && initialData.nota2 !== null
+          ? initialData.nota2.toString()
+          : ''
+      );
+      setNotaEtapa3(
+        initialData.notaEtapa3 !== null && initialData.notaEtapa3 !== undefined
+          ? initialData.notaEtapa3.toString()
+          : ''
+      );
     } else {
       setNomeDisciplina('');
       setSemestreLetivo('2026.1');
-      setTotalAulasSemestre(60);
+      setTotalAulasSemestre(80);
       setQuantidadeFaltas(0);
-      setNota1('');
-      setNota2('');
+      setNotaEtapa1('');
+      setNotaEtapa2('');
+      setNotaEtapa3('');
     }
     setError(null);
   }, [initialData, isOpen]);
@@ -53,19 +72,31 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
   if (!isOpen) return null;
 
   // Real-time calculation previews
-  const n1Val = parseFloat(nota1);
-  const n2Val = nota2 !== '' ? parseFloat(nota2) : null;
-  const isN1Valid = !isNaN(n1Val) && n1Val >= 0 && n1Val <= 10;
-  const isN2Valid = n2Val === null || (!isNaN(n2Val) && n2Val >= 0 && n2Val <= 10);
+  const e1Val = notaEtapa1 !== '' ? parseFloat(notaEtapa1) : null;
+  const e2Val = notaEtapa2 !== '' ? parseFloat(notaEtapa2) : null;
+  const e3Val = notaEtapa3 !== '' ? parseFloat(notaEtapa3) : null;
 
-  let previewMedia: number | null = null;
-  if (isN1Valid) {
-    if (n2Val !== null && !isNaN(n2Val)) {
-      previewMedia = (n1Val + n2Val) / 2;
-    } else {
-      previewMedia = n1Val;
-    }
+  const isE1Valid = e1Val === null || (!isNaN(e1Val) && e1Val >= 0 && e1Val <= 25);
+  const isE2Valid = e2Val === null || (!isNaN(e2Val) && e2Val >= 0 && e2Val <= 30);
+  const isE3Valid = e3Val === null || (!isNaN(e3Val) && e3Val >= 0 && e3Val <= 45);
+
+  let pontosAcumulados = 0;
+  let etapasLancadas = 0;
+  if (e1Val !== null && !isNaN(e1Val)) {
+    pontosAcumulados += e1Val;
+    etapasLancadas++;
   }
+  if (e2Val !== null && !isNaN(e2Val)) {
+    pontosAcumulados += e2Val;
+    etapasLancadas++;
+  }
+  if (e3Val !== null && !isNaN(e3Val)) {
+    pontosAcumulados += e3Val;
+    etapasLancadas++;
+  }
+
+  const metaFinal = mediaCorte <= 10.0 ? mediaCorte * 10 : mediaCorte; // 60 pts
+  const pontosRestantesParaMeta = Math.max(0, metaFinal - pontosAcumulados);
 
   let previewFreq: number | null = null;
   if (totalAulasSemestre > 0 && quantidadeFaltas >= 0) {
@@ -76,7 +107,6 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    // Validation
     if (!nomeDisciplina.trim()) {
       setError('O nome da disciplina é obrigatório.');
       return;
@@ -97,12 +127,16 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
       setError('A quantidade de faltas não pode exceder o total de aulas do semestre.');
       return;
     }
-    if (isNaN(n1Val) || n1Val < 0 || n1Val > 10) {
-      setError('A Nota 1 deve ser um número entre 0.0 e 10.0.');
+    if (e1Val !== null && (isNaN(e1Val) || e1Val < 0 || e1Val > 25)) {
+      setError('A pontuação da Etapa 1 deve ser um número entre 0.0 e 25.0 pontos.');
       return;
     }
-    if (nota2 !== '' && (n2Val === null || isNaN(n2Val) || n2Val < 0 || n2Val > 10)) {
-      setError('A Nota 2 deve ser um número entre 0.0 e 10.0 ou ser deixada vazia caso pendente.');
+    if (e2Val !== null && (isNaN(e2Val) || e2Val < 0 || e2Val > 30)) {
+      setError('A pontuação da Etapa 2 deve ser um número entre 0.0 e 30.0 pontos.');
+      return;
+    }
+    if (e3Val !== null && (isNaN(e3Val) || e3Val < 0 || e3Val > 45)) {
+      setError('A pontuação da Etapa 3 deve ser um número entre 0.0 e 45.0 pontos.');
       return;
     }
 
@@ -113,8 +147,11 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
       semestreLetivo: semestreLetivo.trim(),
       totalAulasSemestre,
       quantidadeFaltas,
-      nota1: n1Val,
-      nota2: n2Val,
+      notaEtapa1: e1Val,
+      notaEtapa2: e2Val,
+      notaEtapa3: e3Val,
+      nota1: e1Val ?? 0,
+      nota2: e2Val,
     };
 
     try {
@@ -130,7 +167,7 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-      <div className="glass-panel w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="glass-panel w-full max-w-xl rounded-2xl shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
           <div className="flex items-center gap-2.5">
@@ -142,9 +179,7 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
                 {isEditing ? 'Editar Disciplina' : 'Lançar Nova Disciplina'}
               </h3>
               <p className="text-xs text-slate-400">
-                {isEditing
-                  ? 'Atualize notas parciais ou faltas acumuladas'
-                  : 'Cadastre o componente curricular com dados reais'}
+                Padrão institucional: 3 etapas (100 pontos no total) • 60 pts para passar
               </p>
             </div>
           </div>
@@ -175,13 +210,13 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
               required
               value={nomeDisciplina}
               onChange={(e) => setNomeDisciplina(e.target.value)}
-              placeholder="ex.: Estrutura de Dados, Cálculo II, Banco de Dados..."
+              placeholder="ex.: Estrutura de Dados, Banco de Dados, Redes de Computadores..."
               className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
             />
           </div>
 
-          {/* Grid 2 cols: Semestre Letivo e Total de Aulas */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Grid 3 cols: Semestre Letivo, Carga Horária, Faltas */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
                 Semestre Letivo *
@@ -194,11 +229,14 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
                 placeholder="ex.: 2026.1"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">
+                Período em curso
+              </span>
             </div>
 
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
-                Total de Aulas (Semestre) *
+                Carga Horária (Aulas) *
               </label>
               <input
                 type="number"
@@ -206,17 +244,17 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
                 required
                 value={totalAulasSemestre}
                 onChange={(e) => setTotalAulasSemestre(parseInt(e.target.value) || 0)}
-                placeholder="ex.: 60, 80"
+                placeholder="ex.: 80 ou 40"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">
+                Geralmente 80h ou 40h
+              </span>
             </div>
-          </div>
 
-          {/* Grid 3 cols: Faltas, Nota 1, Nota 2 */}
-          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block font-semibold text-slate-300 mb-1">
-                Faltas Acumuladas *
+                Horas / Aulas Faltadas *
               </label>
               <input
                 type="number"
@@ -228,66 +266,122 @@ export const DisciplinaModal: React.FC<DisciplinaModalProps> = ({
                 placeholder="0"
                 className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
               />
+              <span className="block text-[10px] text-slate-500 mt-1">
+                Máx 20% ausências permitidas
+              </span>
+            </div>
+          </div>
+
+          {/* Seção das 3 Etapas Institucionais */}
+          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+            <div className="flex items-center gap-1.5 text-indigo-300 font-semibold text-xs">
+              <Info className="w-3.5 h-3.5" />
+              <span>Pontuação por Etapa (Total: 100 pontos no período)</span>
             </div>
 
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">
-                Nota 1 (0.0 a 10.0) *
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="10"
-                required
-                value={nota1}
-                onChange={(e) => setNota1(e.target.value)}
-                placeholder="ex.: 7.5"
-                className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Etapa 1 */}
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">
+                  1ª Etapa (0 a 25 pts)
+                </label>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="25"
+                  value={notaEtapa1}
+                  onChange={(e) => setNotaEtapa1(e.target.value)}
+                  placeholder="Pendente"
+                  className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
+                />
+                <span className="block text-[10px] text-slate-400 mt-1 leading-snug">
+                  15p prova + 5p sala + 5p interdisciplinar
+                </span>
+              </div>
 
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">
-                Nota 2 (Opcional)
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="10"
-                value={nota2}
-                onChange={(e) => setNota2(e.target.value)}
-                placeholder="Pendente"
-                className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
-              />
+              {/* Etapa 2 */}
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">
+                  2ª Etapa (0 a 30 pts)
+                </label>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="30"
+                  value={notaEtapa2}
+                  onChange={(e) => setNotaEtapa2(e.target.value)}
+                  placeholder="Pendente"
+                  className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
+                />
+                <span className="block text-[10px] text-slate-400 mt-1 leading-snug">
+                  15p prova + 10p interdisc. + 5p sala
+                </span>
+              </div>
+
+              {/* Etapa 3 */}
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">
+                  3ª Etapa (0 a 45 pts)
+                </label>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="45"
+                  value={notaEtapa3}
+                  onChange={(e) => setNotaEtapa3(e.target.value)}
+                  placeholder="Pendente"
+                  className="w-full bg-slate-950/70 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-slate-200 text-sm focus:outline-none transition-colors"
+                />
+                <span className="block text-[10px] text-slate-400 mt-1 leading-snug">
+                  25p prova + 10p sala + 10p Prova F
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Real-time Calculation Card Preview */}
-          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Calculator className="w-4 h-4 text-indigo-400" />
               <span className="font-semibold text-slate-300">Simulação Imediata:</span>
             </div>
             <div className="flex items-center gap-4 text-xs font-mono">
               <div>
-                <span className="text-slate-400">Média: </span>
+                <span className="text-slate-400">Acumulado: </span>
                 <span
                   className={`font-bold ${
-                    previewMedia !== null && previewMedia >= mediaCorte
+                    pontosAcumulados >= metaFinal
                       ? 'text-emerald-400'
-                      : 'text-amber-400'
+                      : pontosAcumulados >= 40
+                      ? 'text-amber-400'
+                      : 'text-indigo-300'
                   }`}
                 >
-                  {previewMedia !== null ? previewMedia.toFixed(1) : '--'}
+                  {pontosAcumulados.toFixed(1)} / 100 pts
                 </span>
               </div>
               <div>
-                <span className="text-slate-400">Frequência: </span>
+                <span className="text-slate-400">
+                  {pontosRestantesParaMeta > 0 ? 'Faltam: ' : 'Situação: '}
+                </span>
                 <span
                   className={`font-bold ${
-                    previewFreq !== null && previewFreq >= 75 ? 'text-cyan-400' : 'text-rose-400'
+                    pontosRestantesParaMeta === 0 ? 'text-emerald-400' : 'text-amber-300'
+                  }`}
+                >
+                  {pontosRestantesParaMeta === 0
+                    ? 'Aprovado na Nota!'
+                    : `${pontosRestantesParaMeta.toFixed(1)} pts`}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-400">Presença: </span>
+                <span
+                  className={`font-bold ${
+                    previewFreq !== null && previewFreq >= 80 ? 'text-cyan-400' : 'text-rose-400'
                   }`}
                 >
                   {previewFreq !== null ? `${previewFreq.toFixed(1)}%` : '--'}
