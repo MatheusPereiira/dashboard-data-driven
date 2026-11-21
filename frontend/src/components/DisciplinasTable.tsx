@@ -289,13 +289,12 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                     {/* Total Acumulado */}
                     <td className="py-3.5 px-3 text-center">
                       <span
-                        className={`font-mono font-bold text-sm px-2.5 py-0.5 rounded-md ${
-                          isNotaOk
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                            : total >= 40
+                        className={`font-mono font-bold text-sm px-2.5 py-0.5 rounded-md ${isNotaOk
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                          : total >= 40
                             ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
                             : 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/30'
-                        }`}
+                          }`}
                       >
                         {total.toFixed(1)}
                       </span>
@@ -305,9 +304,8 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`font-semibold ${
-                            isFreqOk ? 'text-cyan-400' : 'text-rose-400'
-                          }`}
+                          className={`font-semibold ${isFreqOk ? 'text-cyan-400' : 'text-rose-400'
+                            }`}
                         >
                           {freq.toFixed(1)}%
                         </span>
@@ -317,9 +315,8 @@ export const DisciplinasTable: React.FC<DisciplinasTableProps> = ({
                       </div>
                       <div className="w-24 bg-slate-800 rounded-full h-1 mt-1 overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
-                            isFreqOk ? 'bg-cyan-500' : 'bg-rose-500'
-                          }`}
+                          className={`h-full rounded-full ${isFreqOk ? 'bg-cyan-500' : 'bg-rose-500'
+                            }`}
                           style={{ width: `${Math.min(100, freq)}%` }}
                         />
                       </div>
