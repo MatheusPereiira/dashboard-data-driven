@@ -7,9 +7,12 @@ ClassificacaoRisco = Literal["BAIXO", "MODERADO", "ALTO", "CRITICO"]
 
 class DisciplinaFeature(BaseModel):
     nomeDisciplina: str = Field(..., min_length=1)
-    nota1: Optional[float] = Field(default=None, ge=0.0, le=10.0)
-    nota2: Optional[float] = Field(default=None, ge=0.0, le=10.0)
-    mediaAtual: Optional[float] = Field(default=None, ge=0.0, le=10.0)
+    notaEtapa1: Optional[float] = Field(default=None, ge=0.0, le=25.0)
+    notaEtapa2: Optional[float] = Field(default=None, ge=0.0, le=30.0)
+    notaEtapa3: Optional[float] = Field(default=None, ge=0.0, le=45.0)
+    nota1: Optional[float] = Field(default=None, ge=0.0, le=100.0)
+    nota2: Optional[float] = Field(default=None, ge=0.0, le=100.0)
+    mediaAtual: Optional[float] = Field(default=None, ge=0.0, le=100.0)
     notaNecessariaParaPassar: Optional[float] = Field(default=None, ge=0.0)
     quantidadeFaltas: int = Field(..., ge=0)
     totalAulasSemestre: int = Field(..., gt=0)
@@ -21,7 +24,7 @@ class DisciplinaFeature(BaseModel):
 
 class PredicaoRequest(BaseModel):
     alunoId: str = Field(..., min_length=1)
-    mediaMinimaAprovacao: float = Field(..., gt=0.0, le=10.0)
+    mediaMinimaAprovacao: float = Field(..., gt=0.0, le=100.0)
     frequenciaMinimaExigida: float = Field(..., ge=0.0, le=100.0)
     disciplinas: list[DisciplinaFeature] = Field(default_factory=list)
 

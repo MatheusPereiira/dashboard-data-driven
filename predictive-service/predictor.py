@@ -1,7 +1,7 @@
 import math
 from schemas import ClassificacaoRisco, DisciplinaFeature, PredicaoRequest, PredicaoResposta
 
-MODELO_VERSAO = "logistic-academic-risk-v1"
+MODELO_VERSAO = "logistic-academic-risk-v2-fans"
 
 
 def _sigmoid(x: float) -> float:
@@ -29,19 +29,43 @@ def _calcular_risco_disciplina(
     if status == "APROVADO":
         return 4.0
 
-    # 1. Pressao de nota: distancia em relacao a media minima e dificuldade da Nota 2
-    media = disc.mediaAtual if disc.mediaAtual is not None else (disc.nota1 or 0.0)
-    deficit_nota = max(0.0, (media_minima - media) / max(media_minima, 1.0))
+    meta = media_minima * 10.0 if media_minima <= 10.0 else media_minima
 
-    pressao_nota2 = 0.0
-    if disc.nota2 is None and disc.notaNecessariaParaPassar is not None:
-        if disc.notaNecessariaParaPassar > 10.0:
-            return 95.0
-        pressao_nota2 = max(0.0, (disc.notaNecessariaParaPassar - media_minima) / max(10.0 - media_minima, 1.0))
+    # Pontos acumulados
+    pontos_acumulados = disc.mediaAtual if disc.mediaAtual is not None else 0.0
+    if pontos_acumulados == 0.0:
+        pontos_acumulados = (
+            (disc.notaEtapa1 if disc.notaEtapa1 is not None else (disc.nota1 or 0.0))
+            + (disc.notaEtapa2 if disc.notaEtapa2 is not None else (disc.nota2 or 0.0))
+            + (disc.notaEtapa3 or 0.0)
+        )
 
-    fator_nota = min(1.5, deficit_nota * 1.15 + pressao_nota2 * 0.65)
+    # Pontos restantes possíveis
+    pontos_restantes = 100.0
+    if disc.notaEtapa1 is not None or disc.nota1 is not None:
+        pontos_restantes -= 25.0
+    if disc.notaEtapa2 is not None or disc.nota2 is not None:
+        pontos_restantes -= 30.0
+    if disc.notaEtapa3 is not None:
+        pontos_restantes -= 45.0
 
-    # 2. Pressao de frequencia: consumo do limite de faltas permitido
+    # Já atingiu a meta (60 pontos)
+    if pontos_acumulados >= meta:
+        return 5.0
+
+    # Matematicamente impossível atingir a meta
+    if pontos_acumulados + pontos_restantes < meta:
+        return 96.0
+
+    pontos_necessarios = max(0.0, meta - pontos_acumulados)
+    if disc.notaNecessariaParaPassar is not None:
+        pontos_necessarios = disc.notaNecessariaParaPassar
+
+    # Taxa de esforço necessária sobre o saldo disponível
+    taxa_esforco = pontos_necessarios / max(pontos_restantes, 1.0)
+    fator_nota = min(1.5, taxa_esforco * 1.35)
+
+    # 2. Pressão de faltas: consumo do limite de faltas institucional
     if disc.limiteFaltas > 0:
         consumo_faltas = min(1.5, disc.quantidadeFaltas / disc.limiteFaltas)
     else:
@@ -50,10 +74,9 @@ def _calcular_risco_disciplina(
     if disc.percentualFrequencia < frequencia_minima:
         return 96.0
 
-    # 3. Interacao combinada (nota baixa + alto consumo de faltas eleva o risco exponencialmente)
+    # 3. Interação combinada
     interacao = fator_nota * consumo_faltas
 
-    # Combina fatores via funcao logistica calibrada (escala 0 a 100)
     logit = -2.35 + (2.9 * fator_nota) + (2.4 * consumo_faltas) + (1.6 * interacao)
     probabilidade = _sigmoid(logit) * 100.0
 
@@ -77,20 +100,20 @@ def _gerar_recomendacoes(
         if status == "REPROVADO":
             recomendacoes.append(
                 f"Prioridade maxima em {disc.nomeDisciplina}: disciplina em situacao de reprovacao. "
-                "Verifique possibilidade de recuperacao/exame final ou replanejamento da grade."
+                "Verifique possibilidade de recuperacao/replanejamento da grade."
             )
             continue
 
-        if disc.nota2 is None and disc.notaNecessariaParaPassar is not None and disc.notaNecessariaParaPassar > request.mediaMinimaAprovacao:
+        if disc.notaNecessariaParaPassar is not None and disc.notaNecessariaParaPassar > 0.0:
             recomendacoes.append(
                 f"Foco de estudo em {disc.nomeDisciplina} (risco estimado {risco:.0f}%): "
-                f"dedique revisao extra para alcancar pelo menos {disc.notaNecessariaParaPassar:.1f} na Avaliacao 2."
+                f"necessario acumular pelo menos {disc.notaNecessariaParaPassar:.1f} pontos nas etapas restantes para alcancar a meta institucional."
             )
 
         if disc.faltasRestantesPermitidas <= 3 and disc.limiteFaltas > 0:
             recomendacoes.append(
-                f"Controle rigoroso de presenca em {disc.nomeDisciplina}: "
-                f"restam apenas {disc.faltasRestantesPermitidas} falta(s) antes do limite de reprovacao por frequencia."
+                f"Controle rigoroso de frequencia em {disc.nomeDisciplina}: "
+                f"restam apenas {disc.faltasRestantesPermitidas} falta(s) permitidas dentro da margem de 20% de ausencia."
             )
 
     if len(em_risco) >= 2:
@@ -100,52 +123,43 @@ def _gerar_recomendacoes(
         )
 
     if not recomendacoes:
-        recomendacoes.append(
-            "Ritmo academico saudavel segundo o modelo preditivo. Mantenha a constancia nas aulas e revisoes."
-        )
+        recomendacoes.append("Desempenho estavel: continue mantendo a assiduidade e a rotina de estudos em dia.")
 
     return recomendacoes
 
 
 def avaliar_risco_academico(request: PredicaoRequest) -> PredicaoResposta:
+    return predizer(request)
+
+
+def predizer(request: PredicaoRequest) -> PredicaoResposta:
     if not request.disciplinas:
         return PredicaoResposta(
             scoreRisco=0.0,
             classificacaoRisco="BAIXO",
-            recomendacoes=[],
+            recomendacoes=["Nenhuma disciplina cadastrada para analise preditiva."],
             modelo=MODELO_VERSAO,
         )
 
-    riscos_por_disciplina: list[tuple[DisciplinaFeature, float]] = [
-        (
+    riscos: list[tuple[DisciplinaFeature, float]] = []
+    for disc in request.disciplinas:
+        score_disc = _calcular_risco_disciplina(
             disc,
-            _calcular_risco_disciplina(
-                disc,
-                request.mediaMinimaAprovacao,
-                request.frequenciaMinimaExigida,
-            ),
+            request.mediaMinimaAprovacao,
+            request.frequenciaMinimaExigida,
         )
-        for disc in request.disciplinas
-    ]
+        riscos.append((disc, score_disc))
 
-    valores_risco = [r for _, r in riscos_por_disciplina]
-    risco_medio = sum(valores_risco) / len(valores_risco)
-    risco_maximo = max(valores_risco)
+    # Ponderação com foco no pior caso (70% max, 30% media)
+    max_risco = max(score for _, score in riscos)
+    media_risco = sum(score for _, score in riscos) / len(riscos)
+    score_geral = round(0.70 * max_risco + 0.30 * media_risco, 2)
 
-    qtd_alerta = sum(1 for r in valores_risco if r >= 50.0)
-    penalidade_cascata = min(15.0, max(0, qtd_alerta - 1) * 6.5)
-
-    # Peso balanceado entre o pior gargalo (55%), media geral do semestre (45%) e efeito cascata
-    score_final = round(
-        min(100.0, max(0.0, (0.55 * risco_maximo) + (0.45 * risco_medio) + penalidade_cascata)),
-        2,
-    )
-
-    classificacao = _classificar_risco(score_final)
-    recomendacoes = _gerar_recomendacoes(request, riscos_por_disciplina)
+    classificacao = _classificar_risco(score_geral)
+    recomendacoes = _gerar_recomendacoes(request, riscos)
 
     return PredicaoResposta(
-        scoreRisco=score_final,
+        scoreRisco=score_geral,
         classificacaoRisco=classificacao,
         recomendacoes=recomendacoes,
         modelo=MODELO_VERSAO,
